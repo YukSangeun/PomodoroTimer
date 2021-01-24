@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="제목: "
+            android:textSize="15dp"/>
+
+        <EditText
+            android:id="@+id/et_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:selectAllOnFocus="true"
+            android:hint="제목을 입력하세요."/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="횟수: "
+            android:textSize="15dp"/>
+
+        <EditText
+            android:id="@+id/et_times"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:selectAllOnFocus="true"
+            android:text="4"/>
+
+        <CheckBox
+            android:id="@+id/cb_no_times"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="횟수제한 없음"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="공부: "
+            android:textSize="15dp"/>
+
+        <EditText
+            android:id="@+id/et_study"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:selectAllOnFocus="true"
+            android:gravity="center"
+            android:text="25"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="분"
+            android:textSize="15dp"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="휴식: "
+            android:textSize="15dp"/>
+
+        <EditText
+            android:id="@+id/et_rest"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:selectAllOnFocus="true"
+            android:gravity="center"
+            android:text="5"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="분"
+            android:textSize="15dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="대휴식: "
+            android:textSize="15dp"/>
+
+        <EditText
+            android:id="@+id/et_big_rest"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:selectAllOnFocus="true"
+            android:gravity="center"
+            android:text="30"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="분"
+            android:textSize="15dp"/>
+
+    </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/cb_pomo_auto_run"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="뽀모 자동 시작"/>
+
+</LinearLayout>

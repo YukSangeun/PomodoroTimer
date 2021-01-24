@@ -1,17 +1,22 @@
 package com.yukse.pomodorotimer
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class ToDoListFragment : Fragment(){
+class ToDoListFragment : Fragment() {
 
     private val todo_data = arrayListOf<Todo>()
 
@@ -34,33 +39,145 @@ class ToDoListFragment : Fragment(){
         super.onViewCreated(view, savedInstanceState)
 
         //임시로 데이터 넣기
-        todo_data.add(Todo(text = "UI 만들기"))
-        todo_data.add(Todo(text = "9시 기상하기!!!"))
+        todo_data.add(Todo(title = "UI 만들기"))
+        todo_data.add(Todo(title = "9시 기상하기!!!"))
 
-        val todoAdapter = TodoAdapter(todo_data, LayoutInflater.from(context))
         val todoView = view.findViewById<RecyclerView>(R.id.rv_todolist)
-        with(todoView){
+        val todoAdapter = TodoAdapter(todoView, todo_data, context)
+        todoAdapter.setOnItemClickListener(object : TodoAdapter.OnItemClickListener {
+            //OnItemClickListener 인터페이스를 통해 전달받는 함수 - 아이템  삭제/수정 다이얼로그 띄우기
+            override fun onItemClick(position: Int) {
+                itemEditORDeleteDialog(todoView, position, context)
+            }
+        })
+        with(todoView) {
             this.adapter = todoAdapter
             this.layoutManager = LinearLayoutManager(context)
         }
+
+        //add버튼 눌렀을 때 아이템 추가 - 추가 다이어로그 띄우기
+        view.findViewById<Button>(R.id.bt_add).setOnClickListener {
+            itemInfoEditDialog(todoView, "할 일 추가", 0, context)
+        }
+
+    }
+    //수정 or 삭제 다이얼로그 띄우기
+    fun itemEditORDeleteDialog(
+        todoView: RecyclerView,
+        position: Int,
+        context: Context?
+    ) {
+        val eord_list = arrayOf("수정", "삭제")
+
+        AlertDialog.Builder(context)
+            .setTitle(todo_data[position].title)
+            .setItems(eord_list, DialogInterface.OnClickListener { dialog, which ->
+                when (which) {
+                    0 -> {
+                        itemInfoEditDialog(todoView, "할 일 수정", position, context)
+                    }
+                    1 -> {
+                        //삭제
+                        todo_data.removeAt(position)
+                        todoView.adapter?.notifyDataSetChanged()
+                    }
+                }
+            })
+            .show()
+    }
+
+    //아이템 수정 or 추가 다이얼로그 띄우기
+    fun itemInfoEditDialog(
+        todoView: RecyclerView,
+        title: String,   //dialog title에 적을 문자열
+        position: Int,   //edit경우 수정할 아이템의 위치를 알아야한다.
+        context: Context?
+    ) {
+        val addDialogView = LayoutInflater.from(context).inflate(R.layout.todo_item_dialog, null)
+
+        val et_title = addDialogView.findViewById<EditText>(R.id.et_title)
+        val et_times = addDialogView.findViewById<EditText>(R.id.et_times)
+        val et_study = addDialogView.findViewById<EditText>(R.id.et_study)
+        val et_rest = addDialogView.findViewById<EditText>(R.id.et_rest)
+        val et_bigRest = addDialogView.findViewById<EditText>(R.id.et_big_rest)
+
+        //기존 값 불러와 화면에 표시
+        if(title.equals("할 일 수정")) {
+            et_title.setText(todo_data[position].title)
+            et_times.setText(todo_data[position].pomoCnt.toString())
+            et_study.setText(todo_data[position].studyTime.toString())
+            et_rest.setText(todo_data[position].restTime.toString())
+            et_bigRest.setText(todo_data[position].bigRestTime.toString())
+        }
+
+        AlertDialog.Builder(context)
+            .setTitle(title)
+            .setView(addDialogView)
+            .setPositiveButton("확인", DialogInterface.OnClickListener { dialog, which ->
+
+                Log.d("texx", position.toString() + " "+ et_title.text.toString() + " " +et_times.text.toString() + " " + et_study.text.toString() + " " + et_rest.text.toString() + " " +et_bigRest.text.toString())
+
+                when (title) {
+                    "할 일 추가" -> {
+                        todo_data.add(
+                            Todo(
+                                et_title.text.toString(),
+                                Integer.parseInt(et_times.text.toString()),
+                                Integer.parseInt(et_study.text.toString()),
+                                Integer.parseInt(et_rest.text.toString()),
+                                Integer.parseInt(et_bigRest.text.toString())
+                            )
+                        )
+                    }
+                    "할 일 수정" -> {
+                        todo_data.set(position, Todo(et_title.text.toString(),
+                            Integer.parseInt(et_times.text.toString()),
+                            Integer.parseInt(et_study.text.toString()),
+                            Integer.parseInt(et_rest.text.toString()),
+                            Integer.parseInt(et_bigRest.text.toString())))
+                    }
+                }
+                todoView.adapter?.notifyDataSetChanged()
+            })
+            .setNegativeButton("취소", null)
+            .show()
     }
 }
 
 //recyclerViewAdater
 class TodoAdapter(
+    val todoView: RecyclerView,
     val itemList: ArrayList<Todo>,
-    val inflater: LayoutInflater
-): RecyclerView.Adapter<TodoAdapter.ViewHolder>(){
+    val context: Context?
+) : RecyclerView.Adapter<TodoAdapter.ViewHolder>() {
+    //아이템 버튼 클릭하면 수정/삭제 다이어로그 띄우기 위한 인터페이스
+    interface OnItemClickListener {
+        fun onItemClick(position: Int)
+    }
 
-    inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
+    lateinit var itemClickListener: OnItemClickListener
+
+    fun setOnItemClickListener(listener: OnItemClickListener) {
+        //fragment에서 아이템 클릭리스너 호출 후 listener 구현할 것
+        this.itemClickListener = listener
+    }
+
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val todoText: CheckBox
+
         init {
             todoText = itemView.findViewById(R.id.checkbox_todo)
+            //item 눌렀을 때 수정, 삭제 선택 다이어로그 띄우기
+            // 수정 선택 시 - 수정 다이어로그
+            itemView.findViewById<Button>(R.id.bt_modify).setOnClickListener {
+
+                itemClickListener.onItemClick(adapterPosition)
+            }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = inflater.inflate(R.layout.todo_item_view, parent, false)
+        val view = LayoutInflater.from(context).inflate(R.layout.todo_item_view, parent, false)
         return ViewHolder(view)
     }
 
@@ -69,9 +186,15 @@ class TodoAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.todoText.setText(itemList.get(position).text)
+        holder.todoText.setText(itemList.get(position).title)
     }
 }
 
 //To do
-data class Todo(var text: String, var isDone: Boolean=false, var pomoCnt: Int=4, var studyTime: Int=25, var restTime: Int=5)
+data class Todo(
+    var title: String,
+    var pomoCnt: Int = 4,
+    var studyTime: Int = 25,
+    var restTime: Int = 5,
+    var bigRestTime: Int = 30
+)
