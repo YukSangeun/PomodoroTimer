@@ -8,10 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -163,10 +160,10 @@ class TodoAdapter(
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val todoText: CheckBox
+        val todoText: TextView
 
         init {
-            todoText = itemView.findViewById(R.id.checkbox_todo)
+            todoText = itemView.findViewById(R.id.tv_todo)
             //item 눌렀을 때 수정, 삭제 선택 다이어로그 띄우기
             // 수정 선택 시 - 수정 다이어로그
             itemView.findViewById<Button>(R.id.bt_modify).setOnClickListener {

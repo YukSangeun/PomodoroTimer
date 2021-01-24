@@ -9,10 +9,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <CheckBox
-            android:id="@+id/checkbox_todo"
+        <TextView
+            android:id="@+id/tv_todo"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
             android:text="오늘 해야할 일1"
             android:textSize="20dp" />
 
