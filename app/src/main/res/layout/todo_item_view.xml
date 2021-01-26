@@ -5,16 +5,17 @@
     android:orientation="vertical"
     android:padding="10dp">
 
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/tv_todo"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="50dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
+            android:layout_toLeftOf="@id/bt_modify"
             android:text="오늘 해야할 일1"
             android:textSize="20dp" />
 
@@ -23,11 +24,12 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="@drawable/ic_baseline_timer_24"
-            android:layout_gravity="right|center_vertical"/>
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"/>
 
 
 
-    </FrameLayout>
+    </RelativeLayout>
 
     <TextView
         android:layout_width="match_parent"

@@ -38,11 +38,11 @@ class PomoTimerActivity : AppCompatActivity() {
     lateinit var bt_start :Button
 
     //여기값은 설정에서 가져올 값. 아직 설정 없어서 변수로 선언해둔 것
-    private val auto: Boolean = true
-    private val studyT: Long = 1
-    private val shortRestT: Long = 1
-    private val longRestT: Long = 1
-    private val pomo: Int = 4
+    private var auto: Boolean = true
+    private var studyT: Long = 1
+    private var shortRestT: Long = 1
+    private var longRestT: Long = 1
+    private var pomo: Int = 4
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,7 +57,7 @@ class PomoTimerActivity : AppCompatActivity() {
             startButtonClick()
         }
 
-
+        setTimerValue()
         mMillisInFuture = studyT*60*PERIOD
         currentTimer = CurrentTimer.STUDY
         studyCnt = 1
@@ -84,6 +84,20 @@ class PomoTimerActivity : AppCompatActivity() {
                 startCountDownTimer()
             })
             .show()
+    }
+
+    fun setTimerValue(){
+        auto = intent.getBooleanExtra("auto", false)
+        studyT = intent.getLongExtra("study", 1)
+        shortRestT = intent.getLongExtra("shortRest", 1)
+        longRestT = intent.getLongExtra("longRest", 1)
+        pomo = intent.getIntExtra("pomo", 4)
+
+        Log.d("startt", "pomoTimer: " +auto)
+        Log.d("startt", ""+studyT)
+        Log.d("startt", ""+shortRestT)
+        Log.d("startt", ""+longRestT)
+        Log.d("startt", ""+pomo)
     }
 
     //1초 후 자동 학습/휴식 전환
@@ -135,7 +149,7 @@ class PomoTimerActivity : AppCompatActivity() {
         val finishToast: Toast
 
         if (currentTimer == CurrentTimer.STUDY) {
-            if (studyCnt < 4) {
+            if (studyCnt < pomo) {
                 //short rest
                 finishToast = Toast.makeText(
                     this@PomoTimerActivity,

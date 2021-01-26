@@ -3,6 +3,7 @@ package com.yukse.pomodorotimer
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,8 +15,21 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 class ToDoListFragment : Fragment() {
+    //아이템 클릭 후 타이머로 이동할 때 값 전달할 interface
+    //실제 구현은 timer 액티비티에서
+    interface OnDataPassLister{
+        fun onDataPass(study: Long?, shortRest: Long?, longRest: Long?, pomo: Int?, auto: Boolean?)
+    }
 
+    private lateinit var dataPassListener: OnDataPassLister
     private val todo_data = arrayListOf<Todo>()
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        //context를 ondatapassListener로 형변환 - 데이터 넘겨주기 위해
+        dataPassListener = context as OnDataPassLister
+    }
 
     //뷰를 그리는 라이프사이클
     override fun onCreateView(
@@ -42,9 +56,14 @@ class ToDoListFragment : Fragment() {
         val todoView = view.findViewById<RecyclerView>(R.id.rv_todolist)
         val todoAdapter = TodoAdapter(todoView, todo_data, context)
         todoAdapter.setOnItemClickListener(object : TodoAdapter.OnItemClickListener {
-            //OnItemClickListener 인터페이스를 통해 전달받는 함수 - 아이템  삭제/수정 다이얼로그 띄우기
-            override fun onItemClick(position: Int) {
+            //OnItemClickListener 인터페이스를 통해 전달받는 함수
+            // 1. 아이템  삭제/수정 다이얼로그 띄우기
+            override fun onItemButtonClick(position: Int) {
                 itemEditORDeleteDialog(todoView, position, context)
+            }
+            // 2. 타이머로 값 전달 후 이동
+            override fun onItemTitleClick(position: Int) {
+                dataPassListener.onDataPass(todo_data[position].studyTime, todo_data[position].shortRestTime, todo_data[position].longRestTime, todo_data[position].pomoCnt, todo_data[position].autoStart)
             }
         })
         with(todoView) {
@@ -58,6 +77,7 @@ class ToDoListFragment : Fragment() {
         }
 
     }
+
     //수정 or 삭제 다이얼로그 띄우기
     fun itemEditORDeleteDialog(
         todoView: RecyclerView,
@@ -97,14 +117,16 @@ class ToDoListFragment : Fragment() {
         val et_study = addDialogView.findViewById<EditText>(R.id.et_study)
         val et_rest = addDialogView.findViewById<EditText>(R.id.et_rest)
         val et_bigRest = addDialogView.findViewById<EditText>(R.id.et_big_rest)
+        val cb_pomo_auto_run = addDialogView.findViewById<CheckBox>(R.id.cb_pomo_auto_run)
 
         //기존 값 불러와 화면에 표시
         if(title.equals("할 일 수정")) {
             et_title.setText(todo_data[position].title)
             et_times.setText(todo_data[position].pomoCnt.toString())
             et_study.setText(todo_data[position].studyTime.toString())
-            et_rest.setText(todo_data[position].restTime.toString())
-            et_bigRest.setText(todo_data[position].bigRestTime.toString())
+            et_rest.setText(todo_data[position].shortRestTime.toString())
+            et_bigRest.setText(todo_data[position].longRestTime.toString())
+            cb_pomo_auto_run.isChecked = todo_data[position].autoStart
         }
 
         AlertDialog.Builder(context)
@@ -120,18 +142,21 @@ class ToDoListFragment : Fragment() {
                             Todo(
                                 et_title.text.toString(),
                                 Integer.parseInt(et_times.text.toString()),
-                                Integer.parseInt(et_study.text.toString()),
-                                Integer.parseInt(et_rest.text.toString()),
-                                Integer.parseInt(et_bigRest.text.toString())
+                                et_study.text.toString().toLong(),
+                                et_rest.text.toString().toLong(),
+                                et_bigRest.text.toString().toLong(),
+                                cb_pomo_auto_run.isChecked
                             )
                         )
                     }
                     "할 일 수정" -> {
                         todo_data.set(position, Todo(et_title.text.toString(),
                             Integer.parseInt(et_times.text.toString()),
-                            Integer.parseInt(et_study.text.toString()),
-                            Integer.parseInt(et_rest.text.toString()),
-                            Integer.parseInt(et_bigRest.text.toString())))
+                            et_study.text.toString().toLong(),
+                            et_rest.text.toString().toLong(),
+                            et_bigRest.text.toString().toLong(),
+                            cb_pomo_auto_run.isChecked
+                            ))
                     }
                 }
                 todoView.adapter?.notifyDataSetChanged()
@@ -147,9 +172,12 @@ class TodoAdapter(
     val itemList: ArrayList<Todo>,
     val context: Context?
 ) : RecyclerView.Adapter<TodoAdapter.ViewHolder>() {
-    //아이템 버튼 클릭하면 수정/삭제 다이어로그 띄우기 위한 인터페이스
+    // 아이템 클릭시 작동을 위한 인터페이스
     interface OnItemClickListener {
-        fun onItemClick(position: Int)
+        // 아이템 버튼 클릭하면 수정/삭제 다이어로그 띄우기
+        fun onItemButtonClick(position: Int)
+        // 아이템 제목 클릭하면 타이머로 이동
+        fun onItemTitleClick(position: Int)
     }
 
     lateinit var itemClickListener: OnItemClickListener
@@ -164,11 +192,15 @@ class TodoAdapter(
 
         init {
             todoText = itemView.findViewById(R.id.tv_todo)
-            //item 눌렀을 때 수정, 삭제 선택 다이어로그 띄우기
+            //item title 눌렀을 때 타이머로 이동
+            todoText.setOnClickListener {
+                itemClickListener.onItemTitleClick(adapterPosition)
+            }
+
+            //item 버튼 눌렀을 때 수정, 삭제 선택 다이어로그 띄우기
             // 수정 선택 시 - 수정 다이어로그
             itemView.findViewById<Button>(R.id.bt_modify).setOnClickListener {
-
-                itemClickListener.onItemClick(adapterPosition)
+                itemClickListener.onItemButtonClick(adapterPosition)
             }
         }
     }
@@ -191,7 +223,8 @@ class TodoAdapter(
 data class Todo(
     var title: String,
     var pomoCnt: Int = 4,
-    var studyTime: Int = 25,
-    var restTime: Int = 5,
-    var bigRestTime: Int = 30
+    var studyTime: Long = 25,
+    var shortRestTime: Long = 5,
+    var longRestTime: Long= 30,
+    var autoStart: Boolean = false
 )
