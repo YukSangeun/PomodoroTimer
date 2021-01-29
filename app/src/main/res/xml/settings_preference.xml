@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="시간 설정">
+
+        <EditTextPreference
+            android:key="study_time"
+            android:title="집중 시간"
+            android:summary="분 단위로 시간을 설정해주세요."
+            android:defaultValue="25"/>
+
+        <EditTextPreference
+            android:key="short_rest_time"
+            android:title="휴식 시간"
+            android:summary="분 단위로 시간을 설정해주세요."
+            android:defaultValue="5"/>
+
+        <SwitchPreference
+            android:key="use_long_rest"
+            android:title="긴 휴식 구간 사용"
+            android:defaultValue="true"/>
+
+        <EditTextPreference
+            android:key="long_rest_time"
+            android:title="긴 휴식 시간"
+            android:summary="분 단위로 시간을 설정해주세요."
+            android:dependency="use_long_rest"
+            android:defaultValue="30"/>
+
+        <EditTextPreference
+            android:key="long_rest_pomo"
+            android:title="긴 휴식 당 집중 횟수"
+            android:dependency="use_long_rest"
+            android:defaultValue="4"/>
+
+   </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="알림 설정">
+
+        <SwitchPreference
+            android:key="alarm_set"
+            android:title="타이머 종료 알림"
+            android:defaultValue="true"/>
+
+        <SwitchPreference
+            android:key="vibration_set"
+            android:title="타이모 종료 진동"
+            android:defaultValue="true"/>
+
+        <!-- 알림 소리 선택 도 추가할 것-->
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="기타 설정">
+
+        <CheckBoxPreference
+            android:key="display"
+            android:title="화면 켜진 상태 유지"
+            android:defaultValue="true"/>
+
+        <CheckBoxPreference
+            android:key="auto_timer"
+            android:title="타이머 자동 시작"
+            android:summary="집중 시간 또는 휴식 시간이 종료 시 다음 작업이 자동 시작됩니다."
+            android:defaultValue="false"/>
+
+
+    </PreferenceCategory>
+
+
+</PreferenceScreen>
