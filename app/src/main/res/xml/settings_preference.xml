@@ -8,13 +8,15 @@
             android:key="study_time"
             android:title="집중 시간"
             android:summary="분 단위로 시간을 설정해주세요."
-            android:defaultValue="25"/>
+            android:defaultValue="25"
+            android:selectAllOnFocus="true"/>
 
         <EditTextPreference
             android:key="short_rest_time"
             android:title="휴식 시간"
             android:summary="분 단위로 시간을 설정해주세요."
-            android:defaultValue="5"/>
+            android:defaultValue="5"
+            android:selectAllOnFocus="true"/>
 
         <SwitchPreference
             android:key="use_long_rest"
@@ -26,13 +28,15 @@
             android:title="긴 휴식 시간"
             android:summary="분 단위로 시간을 설정해주세요."
             android:dependency="use_long_rest"
-            android:defaultValue="30"/>
+            android:defaultValue="30"
+            android:selectAllOnFocus="true"/>
 
         <EditTextPreference
             android:key="long_rest_pomo"
             android:title="긴 휴식 당 집중 횟수"
             android:dependency="use_long_rest"
-            android:defaultValue="4"/>
+            android:defaultValue="4"
+            android:selectAllOnFocus="true"/>
 
    </PreferenceCategory>
 
@@ -46,10 +50,17 @@
 
         <SwitchPreference
             android:key="vibration_set"
-            android:title="타이모 종료 진동"
+            android:title="타이머 종료 진동"
             android:defaultValue="true"/>
 
         <!-- 알림 소리 선택 도 추가할 것-->
+        <ListPreference
+            android:key="alarm_sound"
+            android:title="알림 소리"
+            android:entries="@array/alarm_sound"
+            android:entryValues="@array/alarm_sound_value"
+            android:summary="딩가딩"
+            android:dependency="alarm_set"/>
 
     </PreferenceCategory>
 

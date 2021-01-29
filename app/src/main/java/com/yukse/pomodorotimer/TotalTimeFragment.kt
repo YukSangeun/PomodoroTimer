@@ -33,5 +33,10 @@ class TotalTimeFragment : Fragment(){
             val timer_intent = Intent(context, PomoTimerActivity::class.java)
             startActivity(timer_intent)
         }
+
+        view.findViewById<Button>(R.id.bt_setting).setOnClickListener{
+            val setting_intnet = Intent(context, SettingActivity::class.java)
+            startActivity(setting_intnet)
+        }
     }
 }
