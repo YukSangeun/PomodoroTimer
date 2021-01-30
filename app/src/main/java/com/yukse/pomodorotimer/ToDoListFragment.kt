@@ -3,6 +3,7 @@ package com.yukse.pomodorotimer
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,8 +18,9 @@ import androidx.recyclerview.widget.RecyclerView
 class ToDoListFragment : Fragment() {
     //아이템 클릭 후 타이머로 이동할 때 값 전달할 interface
     //실제 구현은 timer 액티비티에서
-    interface OnDataPassLister{
-        fun onDataPass(study: Long?, shortRest: Long?, longRest: Long?, pomo: Int?, auto: Boolean?)
+    interface OnDataPassLister {
+        //fun onDataPass(study: Long?, shortRest: Long?, longRest: Long?, pomo: Int?, auto: Boolean?, noLongRest: Boolean?)
+        fun onDataPass(item: Todo)
     }
 
     private lateinit var dataPassListener: OnDataPassLister
@@ -61,9 +63,17 @@ class ToDoListFragment : Fragment() {
             override fun onItemButtonClick(position: Int) {
                 itemEditORDeleteDialog(todoView, position, context)
             }
+
             // 2. 타이머로 값 전달 후 이동
             override fun onItemTitleClick(position: Int) {
-                dataPassListener.onDataPass(todo_data[position].studyTime, todo_data[position].shortRestTime, todo_data[position].longRestTime, todo_data[position].pomoCnt, todo_data[position].autoStart)
+//                dataPassListener.onDataPass(
+//                    todo_data[position].studyTime,
+//                    todo_data[position].shortRestTime,
+//                    todo_data[position].longRestTime,
+//                    todo_data[position].pomoCnt,
+//                    todo_data[position].autoStart,
+//                )
+                dataPassListener.onDataPass(todo_data[position])
             }
         })
         with(todoView) {
@@ -118,23 +128,32 @@ class ToDoListFragment : Fragment() {
         val et_rest = addDialogView.findViewById<EditText>(R.id.et_rest)
         val et_longRest = addDialogView.findViewById<EditText>(R.id.et_long_rest)
         val cb_pomo_auto_run = addDialogView.findViewById<CheckBox>(R.id.cb_pomo_auto_run)
+        val cb_no_long_rest = addDialogView.findViewById<CheckBox>(R.id.cb_no_long)
 
         //기존 값 불러와 화면에 표시
-        if(title.equals("할 일 수정")) {
+        if (title.equals("할 일 수정")) {
             et_title.setText(todo_data[position].title)
             et_times.setText(todo_data[position].pomoCnt.toString())
             et_study.setText(todo_data[position].studyTime.toString())
             et_rest.setText(todo_data[position].shortRestTime.toString())
             et_longRest.setText(todo_data[position].longRestTime.toString())
             cb_pomo_auto_run.isChecked = todo_data[position].autoStart
-        }
-        else{   //"할 일 추가"
+            cb_no_long_rest.isChecked = todo_data[position].noLongRest
+        } else {   //"할 일 추가"
             val sp = PreferenceManager.getDefaultSharedPreferences(context)
             et_times.setText(sp.getInt("long_rest_pomo", 4).toString())
             et_study.setText(sp.getInt("study_time", 1).toString())
             et_rest.setText(sp.getInt("short_rest_time", 1).toString())
             et_longRest.setText(sp.getInt("long_rest_time", 1).toString())
             cb_pomo_auto_run.isChecked = sp.getBoolean("auto_timer", false)
+            cb_no_long_rest.isChecked = !(sp.getBoolean("use_long_rest", true))
+        }
+        //long rest time 사용여부에 따라 다이얼로그 일부분 수정 불가로 변경
+        noLongTimer(cb_no_long_rest.isChecked, et_longRest, et_times)
+
+        cb_no_long_rest.setOnClickListener {
+            Log.d("Txx", cb_no_long_rest.isChecked.toString())
+            noLongTimer(cb_no_long_rest.isChecked, et_longRest, et_times)
         }
 
         AlertDialog.Builder(context)
@@ -142,7 +161,10 @@ class ToDoListFragment : Fragment() {
             .setView(addDialogView)
             .setPositiveButton("확인", DialogInterface.OnClickListener { dialog, which ->
 
-                Log.d("texx", position.toString() + " "+ et_title.text.toString() + " " +et_times.text.toString() + " " + et_study.text.toString() + " " + et_rest.text.toString() + " " +et_longRest.text.toString())
+                Log.d(
+                    "texx",
+                    position.toString() + " " + et_title.text.toString() + " " + et_times.text.toString() + " " + et_study.text.toString() + " " + et_rest.text.toString() + " " + et_longRest.text.toString()
+                )
 
                 when (title) {
                     "할 일 추가" -> {
@@ -153,24 +175,47 @@ class ToDoListFragment : Fragment() {
                                 et_study.text.toString().toLong(),
                                 et_rest.text.toString().toLong(),
                                 et_longRest.text.toString().toLong(),
-                                cb_pomo_auto_run.isChecked
+                                cb_pomo_auto_run.isChecked,
+                                cb_no_long_rest.isChecked
                             )
                         )
                     }
                     "할 일 수정" -> {
-                        todo_data.set(position, Todo(et_title.text.toString(),
-                            Integer.parseInt(et_times.text.toString()),
-                            et_study.text.toString().toLong(),
-                            et_rest.text.toString().toLong(),
-                            et_longRest.text.toString().toLong(),
-                            cb_pomo_auto_run.isChecked
-                            ))
+                        todo_data.set(
+                            position, Todo(
+                                et_title.text.toString(),
+                                Integer.parseInt(et_times.text.toString()),
+                                et_study.text.toString().toLong(),
+                                et_rest.text.toString().toLong(),
+                                et_longRest.text.toString().toLong(),
+                                cb_pomo_auto_run.isChecked,
+                                cb_no_long_rest.isChecked
+                            )
+                        )
                     }
                 }
                 todoView.adapter?.notifyDataSetChanged()
             })
             .setNegativeButton("취소", null)
             .show()
+    }
+    // long timer를 사용하지 않을 경우 연관된 editText 수정불가로 변경
+    fun noLongTimer(isChecked: Boolean, et_longRest: EditText, et_times: EditText) {
+        if (isChecked) {
+            et_longRest.isFocusable = false
+            et_longRest.isClickable = false
+            et_longRest.setTextColor(Color.parseColor("#FFFFFF"))
+            et_times.isFocusable = false
+            et_times.isClickable = false
+            et_times.setTextColor(Color.parseColor("#FFFFFF"))
+        } else {
+            et_longRest.isFocusableInTouchMode = true
+            et_longRest.isFocusable = true
+            et_longRest.setTextColor(Color.parseColor("#000000"))
+            et_times.isFocusableInTouchMode = true
+            et_times.isFocusable = true
+            et_times.setTextColor(Color.parseColor("#000000"))
+        }
     }
 }
 
@@ -184,6 +229,7 @@ class TodoAdapter(
     interface OnItemClickListener {
         // 아이템 버튼 클릭하면 수정/삭제 다이어로그 띄우기
         fun onItemButtonClick(position: Int)
+
         // 아이템 제목 클릭하면 타이머로 이동
         fun onItemTitleClick(position: Int)
     }
@@ -233,6 +279,7 @@ data class Todo(
     var pomoCnt: Int = 4,
     var studyTime: Long = 25,
     var shortRestTime: Long = 5,
-    var longRestTime: Long= 30,
-    var autoStart: Boolean = false
+    var longRestTime: Long = 30,
+    var autoStart: Boolean = false,
+    var noLongRest: Boolean = false
 )

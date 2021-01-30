@@ -27,6 +27,7 @@ class PomoTimerActivity : AppCompatActivity() {
     private var mMillisInFuture: Long = 0
     private var studyCnt: Int = 1
     private var currentTimer: CurrentTimer = CurrentTimer.STUDY
+
     //환경설정 변수
     private lateinit var sp: SharedPreferences
 
@@ -35,11 +36,11 @@ class PomoTimerActivity : AppCompatActivity() {
     private var autoTimer: CountDownTimer? = null
 
     //UI - binding으로 이후 변경할 것
-    lateinit var tv_title : TextView
-    lateinit var tv_minutes :TextView
-    lateinit var tv_seconds :TextView
-    lateinit var tv_pomo :TextView
-    lateinit var bt_start :Button
+    lateinit var tv_title: TextView
+    lateinit var tv_minutes: TextView
+    lateinit var tv_seconds: TextView
+    lateinit var tv_pomo: TextView
+    lateinit var bt_start: Button
 
     //intent를 통해 가져올 데이터 (없으면 환경설정에서 가져옴)
     private var studyT: Long = 1
@@ -47,6 +48,7 @@ class PomoTimerActivity : AppCompatActivity() {
     private var longRestT: Long = 1
     private var pomo: Int = 4
     private var auto: Boolean = true
+    private var noLongRest: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,19 +61,19 @@ class PomoTimerActivity : AppCompatActivity() {
         tv_seconds = findViewById<TextView>(R.id.tv_timer_seconds)
         tv_pomo = findViewById<TextView>(R.id.tv_pomoTimes)
         bt_start = findViewById<Button>(R.id.bt_start)
-        bt_start.setOnClickListener{
+        bt_start.setOnClickListener {
             startButtonClick()
         }
 
         setTimerValue()
-        mMillisInFuture = studyT*60*PERIOD
+        mMillisInFuture = studyT * 60 * PERIOD
         currentTimer = CurrentTimer.STUDY
         studyCnt = 1
 
         setUI()
         autoTimerSet()
 
-        if(auto){
+        if (auto) {
             autoTimer?.start()
         }
 
@@ -92,18 +94,13 @@ class PomoTimerActivity : AppCompatActivity() {
             .show()
     }
 
-    fun setTimerValue(){
+    fun setTimerValue() {
         studyT = intent.getLongExtra("study", sp.getInt("study_time", 1).toLong())
         shortRestT = intent.getLongExtra("shortRest", sp.getInt("short_rest_time", 1).toLong())
         longRestT = intent.getLongExtra("longRest", sp.getInt("long_rest_time", 1).toLong())
         pomo = intent.getIntExtra("pomo", sp.getInt("long_rest_pomo", 4))
         auto = intent.getBooleanExtra("auto", sp.getBoolean("auto_timer", false))
-
-        Log.d("startt", "pomoTimer: " +auto)
-        Log.d("startt", ""+studyT)
-        Log.d("startt", ""+shortRestT)
-        Log.d("startt", ""+longRestT)
-        Log.d("startt", ""+pomo)
+        noLongRest = intent.getBooleanExtra("noLongRest", !(sp.getBoolean("use_long_rest", true)))
     }
 
     //1초 후 자동 학습/휴식 전환
@@ -120,7 +117,7 @@ class PomoTimerActivity : AppCompatActivity() {
     }
 
     fun startCountDownTimer() {
-        Log.d("startt", ""+ mMillisInFuture + " " + currentTimer + " " + studyCnt)
+        Log.d("startt", "" + mMillisInFuture + " " + currentTimer + " " + studyCnt)
 
         timer =
             object : CountDownTimer(mMillisInFuture, PERIOD) {
@@ -136,7 +133,7 @@ class PomoTimerActivity : AppCompatActivity() {
                     tv_minutes.setText("" + df.format(m))
                     tv_seconds.setText("" + df.format(s))
 
-                    Log.d("startt", ""+ m + " " + s + " " + studyCnt)
+                    Log.d("startt", "" + m + " " + s + " " + studyCnt)
 
 
                     mMillisInFuture = millisUntilFinished
@@ -155,7 +152,7 @@ class PomoTimerActivity : AppCompatActivity() {
         val finishToast: Toast
 
         if (currentTimer == CurrentTimer.STUDY) {
-            if (studyCnt < pomo) {
+            if (studyCnt < pomo || noLongRest) {
                 //short rest
                 finishToast = Toast.makeText(
                     this@PomoTimerActivity,
@@ -217,7 +214,10 @@ class PomoTimerActivity : AppCompatActivity() {
 
         tv_minutes.setText(df.format(mMillisInFuture / (60 * PERIOD)).toString())
         tv_seconds.setText(df.format((mMillisInFuture / PERIOD) % 60).toString())
-        tv_pomo.setText("$studyCnt / $pomo")
+        if (noLongRest)
+            tv_pomo.setText("$studyCnt / INF")
+        else
+            tv_pomo.setText("$studyCnt / $pomo")
     }
 
     fun startButtonClick() {

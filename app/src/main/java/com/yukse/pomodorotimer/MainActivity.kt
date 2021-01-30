@@ -12,33 +12,29 @@ import androidx.viewpager.widget.ViewPager
 
 class MainActivity : AppCompatActivity(), ToDoListFragment.OnDataPassLister {
     //to_do_list_fragment에서 전달받은 데이더 -> timer activity로 전달 (중간자)
-    override fun onDataPass(
-        study: Long?,
-        shortRest: Long?,
-        longRest: Long?,
-        pomo: Int?,
-        auto: Boolean?
-    ) {
+    override fun onDataPass(item: Todo) {
         val sp = PreferenceManager.getDefaultSharedPreferences(this@MainActivity)
 
-        val studyT = if (study == null) sp.getInt("study_time",1).toLong() else study
-        val shortRestT = if (shortRest == null) sp.getInt("short_rest_time",1).toLong() else shortRest
-        val longRestT = if (longRest == null) sp.getInt("long_rest_time", 1).toLong()else longRest
-        val pomo_ = if (pomo == null) sp.getInt("long_rest_pomo", 4) else pomo
-        val auto_ = if (auto == null) sp.getBoolean("auto_timer", false) else auto
+//        val studyT = if (study == null) sp.getInt("study_time",1).toLong() else study
+//        val shortRestT = if (shortRest == null) sp.getInt("short_rest_time",1).toLong() else shortRest
+//        val longRestT = if (longRest == null) sp.getInt("long_rest_time", 1).toLong()else longRest
+//        val pomo_ = if (pomo == null) sp.getInt("long_rest_pomo", 4) else pomo
+//        val auto_ = if (auto == null) sp.getBoolean("auto_timer", false) else auto
 
-        Log.d("startt", "main auto: " + auto_)
-        Log.d("startt", "study: " + studyT)
-        Log.d("startt", "short: " + shortRestT)
-        Log.d("startt", "longRest: " + longRestT)
-        Log.d("startt", "pomo: " + pomo_)
+        val studyT = if (item.studyTime == null) sp.getInt("study_time",1).toLong() else item.studyTime
+        val shortRestT = if (item.shortRestTime == null) sp.getInt("short_rest_time",1).toLong() else item.shortRestTime
+        val longRestT = if (item.longRestTime == null) sp.getInt("long_rest_time", 1).toLong()else item.longRestTime
+        val pomo = if (item.pomoCnt == null) sp.getInt("long_rest_pomo", 4) else item.pomoCnt
+        val auto = if (item.autoStart == null) sp.getBoolean("auto_timer", false) else item.autoStart
+        val noLongRest = if(item.noLongRest == null) !(sp.getBoolean("use_long_rest", true)) else item.noLongRest
 
         val intent: Intent = Intent(this@MainActivity, PomoTimerActivity::class.java)
-        intent.putExtra("study", study)
+        intent.putExtra("study", studyT)
         intent.putExtra("shortRest", shortRestT)
         intent.putExtra("longRest", longRestT)
-        intent.putExtra("pomo", pomo_)
-        intent.putExtra("auto", auto_)
+        intent.putExtra("pomo", pomo)
+        intent.putExtra("auto", auto)
+        intent.putExtra("noLongRest", noLongRest)
         startActivity(intent)
     }
 
