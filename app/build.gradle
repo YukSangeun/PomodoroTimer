@@ -45,4 +45,6 @@ dependencies {
 
     // recyclerView
     implementation "androidx.recyclerview:recyclerview:1.1.0"
+    // preference
+    implementation 'androidx.preference:preference:1.1.0'
 }
