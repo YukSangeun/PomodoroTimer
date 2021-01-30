@@ -5,11 +5,14 @@ import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Color
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -66,13 +69,6 @@ class ToDoListFragment : Fragment() {
 
             // 2. 타이머로 값 전달 후 이동
             override fun onItemTitleClick(position: Int) {
-//                dataPassListener.onDataPass(
-//                    todo_data[position].studyTime,
-//                    todo_data[position].shortRestTime,
-//                    todo_data[position].longRestTime,
-//                    todo_data[position].pomoCnt,
-//                    todo_data[position].autoStart,
-//                )
                 dataPassListener.onDataPass(todo_data[position])
             }
         })
@@ -152,20 +148,55 @@ class ToDoListFragment : Fragment() {
         noLongTimer(cb_no_long_rest.isChecked, et_longRest, et_times)
 
         cb_no_long_rest.setOnClickListener {
-            Log.d("Txx", cb_no_long_rest.isChecked.toString())
             noLongTimer(cb_no_long_rest.isChecked, et_longRest, et_times)
         }
+        /* editText 값 변경시 제한 걸기 */
+        et_study.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val number = s.toString().toInt()
+                if (number > 240) {
+                    et_study.setText("240")
+                }
+            }
+        }
+        )
+        et_rest.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val number = s.toString().toInt()
+                if (number > 240) {
+                    et_rest.setText("240")
+                }
+            }
+        })
+        et_longRest.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val number = s.toString().toInt()
+                if (number > 240) {
+                    et_longRest.setText("240")
+                }
+            }
+        })
+        et_times.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val number = s.toString().toInt()
+                if (number > 10) {
+                    et_times.setText("10")
+                }
+            }
+        })
 
         AlertDialog.Builder(context)
             .setTitle(title)
             .setView(addDialogView)
             .setPositiveButton("확인", DialogInterface.OnClickListener { dialog, which ->
-
-                Log.d(
-                    "texx",
-                    position.toString() + " " + et_title.text.toString() + " " + et_times.text.toString() + " " + et_study.text.toString() + " " + et_rest.text.toString() + " " + et_longRest.text.toString()
-                )
-
                 when (title) {
                     "할 일 추가" -> {
                         todo_data.add(
@@ -195,10 +226,13 @@ class ToDoListFragment : Fragment() {
                     }
                 }
                 todoView.adapter?.notifyDataSetChanged()
+
+                dialog.dismiss()
             })
             .setNegativeButton("취소", null)
             .show()
     }
+
     // long timer를 사용하지 않을 경우 연관된 editText 수정불가로 변경
     fun noLongTimer(isChecked: Boolean, et_longRest: EditText, et_times: EditText) {
         if (isChecked) {
