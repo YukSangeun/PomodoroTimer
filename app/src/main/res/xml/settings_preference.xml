@@ -1,75 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-        android:title="시간 설정"
-        android:iconSpaceReserved="false">
+        android:iconSpaceReserved="false"
+        android:title="시간 설정">
 
-        <EditTextPreference
+        <SeekBarPreference
+            android:defaultValue="25"
             android:key="study_time"
+            android:max="240"
             android:title="집중 시간"
-            android:summary="분 단위로 시간을 설정해주세요."
-            android:defaultValue="25"/>
+            app:min="1"
+            app:showSeekBarValue="true" />
 
-        <EditTextPreference
+        <SeekBarPreference
+            android:defaultValue="5"
             android:key="short_rest_time"
+            android:max="240"
             android:title="휴식 시간"
-            android:summary="분 단위로 시간을 설정해주세요."
-            android:defaultValue="5"/>
+            app:min="1"
+            app:showSeekBarValue="true" />
 
         <SwitchPreference
+            android:defaultValue="true"
             android:key="use_long_rest"
-            android:title="긴 휴식 구간 사용"
-            android:defaultValue="true"/>
+            android:title="긴 휴식 구간 사용" />
 
-        <EditTextPreference
-            android:key="long_rest_time"
-            android:title="긴 휴식 시간"
-            android:summary="분 단위로 시간을 설정해주세요."
+        <SeekBarPreference
+            android:defaultValue="30"
             android:dependency="use_long_rest"
-            android:defaultValue="30"/>
+            android:key="long_rest_time"
+            android:max="240"
+            android:title="긴 휴식 시간"
+            app:min="1"
+            app:showSeekBarValue="true" />
 
-        <EditTextPreference
+        <SeekBarPreference
             android:key="long_rest_pomo"
             android:title="긴 휴식 당 집중 횟수"
+            android:defaultValue="4"
+            app:showSeekBarValue="true"
             android:dependency="use_long_rest"
-            android:defaultValue="4"/>
-
-   </PreferenceCategory>
-
-    <PreferenceCategory
-        android:title="알림 설정">
-
-        <SwitchPreference
-            android:key="alarm_set"
-            android:title="타이머 종료 알림"
-            android:defaultValue="true"/>
-
-        <SwitchPreference
-            android:key="vibration_set"
-            android:title="타이머 종료 진동"
-            android:defaultValue="true"/>
-
-        <Preference
-            android:key="alarm_intent"
-            android:title="알림 소리"
-            android:summary="알림 소리를 설정하세요."/>
+            android:max="10"
+            app:min="1"/>
 
     </PreferenceCategory>
 
-    <PreferenceCategory
-        android:title="기타 설정">
+    <PreferenceCategory android:title="알림 설정">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="alarm_set"
+            android:title="타이머 종료 알림" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="vibration_set"
+            android:title="타이머 종료 진동" />
+
+        <Preference
+            android:key="alarm_intent"
+            android:summary="알림 소리를 설정하세요."
+            android:title="알림 소리" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="기타 설정">
 
         <CheckBoxPreference
+            android:defaultValue="true"
             android:key="display"
-            android:title="화면 켜진 상태 유지"
-            android:defaultValue="true"/>
+            android:title="화면 켜진 상태 유지" />
 
         <CheckBoxPreference
+            android:defaultValue="false"
             android:key="auto_timer"
-            android:title="타이머 자동 시작"
             android:summary="집중 시간 또는 휴식 시간이 종료 시 다음 작업이 자동 시작됩니다."
-            android:defaultValue="false"/>
+            android:title="타이머 자동 시작" />
 
 
     </PreferenceCategory>

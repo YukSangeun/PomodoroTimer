@@ -131,9 +131,9 @@ class ToDoListFragment : Fragment() {
         else{   //"할 일 추가"
             val sp = PreferenceManager.getDefaultSharedPreferences(context)
             et_times.setText(sp.getInt("long_rest_pomo", 4).toString())
-            et_study.setText(sp.getLong("study_time", 1).toString())
-            et_rest.setText(sp.getLong("short_rest_time", 1).toString())
-            et_longRest.setText(sp.getLong("long_rest_time", 1).toString())
+            et_study.setText(sp.getInt("study_time", 1).toString())
+            et_rest.setText(sp.getInt("short_rest_time", 1).toString())
+            et_longRest.setText(sp.getInt("long_rest_time", 1).toString())
             cb_pomo_auto_run.isChecked = sp.getBoolean("auto_timer", false)
         }
 

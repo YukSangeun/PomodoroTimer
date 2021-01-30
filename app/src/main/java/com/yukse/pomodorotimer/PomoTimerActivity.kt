@@ -93,9 +93,9 @@ class PomoTimerActivity : AppCompatActivity() {
     }
 
     fun setTimerValue(){
-        studyT = intent.getLongExtra("study", sp.getLong("study_time", 1))
-        shortRestT = intent.getLongExtra("shortRest", sp.getLong("short_rest_time", 1))
-        longRestT = intent.getLongExtra("longRest", sp.getLong("long_rest_time", 1))
+        studyT = intent.getLongExtra("study", sp.getInt("study_time", 1).toLong())
+        shortRestT = intent.getLongExtra("shortRest", sp.getInt("short_rest_time", 1).toLong())
+        longRestT = intent.getLongExtra("longRest", sp.getInt("long_rest_time", 1).toLong())
         pomo = intent.getIntExtra("pomo", sp.getInt("long_rest_pomo", 4))
         auto = intent.getBooleanExtra("auto", sp.getBoolean("auto_timer", false))
 

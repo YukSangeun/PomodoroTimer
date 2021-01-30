@@ -21,9 +21,9 @@ class MainActivity : AppCompatActivity(), ToDoListFragment.OnDataPassLister {
     ) {
         val sp = PreferenceManager.getDefaultSharedPreferences(this@MainActivity)
 
-        val studyT = if (study == null) sp.getLong("study_time",1) else study
-        val shortRestT = if (shortRest == null) sp.getLong("short_rest_time",1) else shortRest
-        val longRestT = if (longRest == null) sp.getLong("long_rest_time", 1) else longRest
+        val studyT = if (study == null) sp.getInt("study_time",1).toLong() else study
+        val shortRestT = if (shortRest == null) sp.getInt("short_rest_time",1).toLong() else shortRest
+        val longRestT = if (longRest == null) sp.getInt("long_rest_time", 1).toLong()else longRest
         val pomo_ = if (pomo == null) sp.getInt("long_rest_pomo", 4) else pomo
         val auto_ = if (auto == null) sp.getBoolean("auto_timer", false) else auto
 
