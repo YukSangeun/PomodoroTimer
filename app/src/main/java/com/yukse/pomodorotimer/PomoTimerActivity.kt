@@ -2,6 +2,7 @@ package com.yukse.pomodorotimer
 
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -10,6 +11,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.preference.PreferenceManager
 import java.text.DecimalFormat
 
 class PomoTimerActivity : AppCompatActivity() {
@@ -25,6 +27,8 @@ class PomoTimerActivity : AppCompatActivity() {
     private var mMillisInFuture: Long = 0
     private var studyCnt: Int = 1
     private var currentTimer: CurrentTimer = CurrentTimer.STUDY
+    //환경설정 변수
+    private lateinit var sp: SharedPreferences
 
 
     private var timer: CountDownTimer? = null
@@ -37,16 +41,18 @@ class PomoTimerActivity : AppCompatActivity() {
     lateinit var tv_pomo :TextView
     lateinit var bt_start :Button
 
-    //여기값은 설정에서 가져올 값. 아직 설정 없어서 변수로 선언해둔 것
-    private var auto: Boolean = true
+    //intent를 통해 가져올 데이터 (없으면 환경설정에서 가져옴)
     private var studyT: Long = 1
     private var shortRestT: Long = 1
     private var longRestT: Long = 1
     private var pomo: Int = 4
+    private var auto: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pomo_timer)
+        //환경설정 가져오기
+        sp = PreferenceManager.getDefaultSharedPreferences(this@PomoTimerActivity)
 
         tv_title = findViewById<TextView>(R.id.tv_title)
         tv_minutes = findViewById<TextView>(R.id.tv_timer_minutes)
@@ -87,11 +93,11 @@ class PomoTimerActivity : AppCompatActivity() {
     }
 
     fun setTimerValue(){
-        auto = intent.getBooleanExtra("auto", false)
-        studyT = intent.getLongExtra("study", 1)
-        shortRestT = intent.getLongExtra("shortRest", 1)
-        longRestT = intent.getLongExtra("longRest", 1)
-        pomo = intent.getIntExtra("pomo", 4)
+        studyT = intent.getLongExtra("study", sp.getLong("study_time", 1))
+        shortRestT = intent.getLongExtra("shortRest", sp.getLong("short_rest_time", 1))
+        longRestT = intent.getLongExtra("longRest", sp.getLong("long_rest_time", 1))
+        pomo = intent.getIntExtra("pomo", sp.getInt("long_rest_pomo", 4))
+        auto = intent.getBooleanExtra("auto", sp.getBoolean("auto_timer", false))
 
         Log.d("startt", "pomoTimer: " +auto)
         Log.d("startt", ""+studyT)

@@ -3,7 +3,6 @@ package com.yukse.pomodorotimer
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -116,7 +116,7 @@ class ToDoListFragment : Fragment() {
         val et_times = addDialogView.findViewById<EditText>(R.id.et_times)
         val et_study = addDialogView.findViewById<EditText>(R.id.et_study)
         val et_rest = addDialogView.findViewById<EditText>(R.id.et_rest)
-        val et_bigRest = addDialogView.findViewById<EditText>(R.id.et_big_rest)
+        val et_longRest = addDialogView.findViewById<EditText>(R.id.et_long_rest)
         val cb_pomo_auto_run = addDialogView.findViewById<CheckBox>(R.id.cb_pomo_auto_run)
 
         //기존 값 불러와 화면에 표시
@@ -125,8 +125,16 @@ class ToDoListFragment : Fragment() {
             et_times.setText(todo_data[position].pomoCnt.toString())
             et_study.setText(todo_data[position].studyTime.toString())
             et_rest.setText(todo_data[position].shortRestTime.toString())
-            et_bigRest.setText(todo_data[position].longRestTime.toString())
+            et_longRest.setText(todo_data[position].longRestTime.toString())
             cb_pomo_auto_run.isChecked = todo_data[position].autoStart
+        }
+        else{   //"할 일 추가"
+            val sp = PreferenceManager.getDefaultSharedPreferences(context)
+            et_times.setText(sp.getInt("long_rest_pomo", 4).toString())
+            et_study.setText(sp.getLong("study_time", 1).toString())
+            et_rest.setText(sp.getLong("short_rest_time", 1).toString())
+            et_longRest.setText(sp.getLong("long_rest_time", 1).toString())
+            cb_pomo_auto_run.isChecked = sp.getBoolean("auto_timer", false)
         }
 
         AlertDialog.Builder(context)
@@ -134,7 +142,7 @@ class ToDoListFragment : Fragment() {
             .setView(addDialogView)
             .setPositiveButton("확인", DialogInterface.OnClickListener { dialog, which ->
 
-                Log.d("texx", position.toString() + " "+ et_title.text.toString() + " " +et_times.text.toString() + " " + et_study.text.toString() + " " + et_rest.text.toString() + " " +et_bigRest.text.toString())
+                Log.d("texx", position.toString() + " "+ et_title.text.toString() + " " +et_times.text.toString() + " " + et_study.text.toString() + " " + et_rest.text.toString() + " " +et_longRest.text.toString())
 
                 when (title) {
                     "할 일 추가" -> {
@@ -144,7 +152,7 @@ class ToDoListFragment : Fragment() {
                                 Integer.parseInt(et_times.text.toString()),
                                 et_study.text.toString().toLong(),
                                 et_rest.text.toString().toLong(),
-                                et_bigRest.text.toString().toLong(),
+                                et_longRest.text.toString().toLong(),
                                 cb_pomo_auto_run.isChecked
                             )
                         )
@@ -154,7 +162,7 @@ class ToDoListFragment : Fragment() {
                             Integer.parseInt(et_times.text.toString()),
                             et_study.text.toString().toLong(),
                             et_rest.text.toString().toLong(),
-                            et_bigRest.text.toString().toLong(),
+                            et_longRest.text.toString().toLong(),
                             cb_pomo_auto_run.isChecked
                             ))
                     }

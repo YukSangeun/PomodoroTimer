@@ -7,10 +7,11 @@ import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.preference.PreferenceManager
 import androidx.viewpager.widget.ViewPager
 
 class MainActivity : AppCompatActivity(), ToDoListFragment.OnDataPassLister {
-
+    //to_do_list_fragment에서 전달받은 데이더 -> timer activity로 전달 (중간자)
     override fun onDataPass(
         study: Long?,
         shortRest: Long?,
@@ -18,11 +19,13 @@ class MainActivity : AppCompatActivity(), ToDoListFragment.OnDataPassLister {
         pomo: Int?,
         auto: Boolean?
     ) {
-        val auto_ = if (auto == null) false else auto
-        val studyT = if (study == null) 1 else study
-        val shortRestT = if (shortRest == null) 1 else shortRest
-        val longRestT = if (longRest == null) 1 else longRest
-        val pomo_ = if (pomo == null) 4 else pomo
+        val sp = PreferenceManager.getDefaultSharedPreferences(this@MainActivity)
+
+        val studyT = if (study == null) sp.getLong("study_time",1) else study
+        val shortRestT = if (shortRest == null) sp.getLong("short_rest_time",1) else shortRest
+        val longRestT = if (longRest == null) sp.getLong("long_rest_time", 1) else longRest
+        val pomo_ = if (pomo == null) sp.getInt("long_rest_pomo", 4) else pomo
+        val auto_ = if (auto == null) sp.getBoolean("auto_timer", false) else auto
 
         Log.d("startt", "main auto: " + auto_)
         Log.d("startt", "study: " + studyT)
@@ -46,9 +49,6 @@ class MainActivity : AppCompatActivity(), ToDoListFragment.OnDataPassLister {
         //pager 만들기
         val pagerAdapter = FragmentPagerAdapter(supportFragmentManager, 2)
         findViewById<ViewPager>(R.id.vp_main).adapter = pagerAdapter
-//        val view_pager = findViewById<ViewPager>(R.id.vp_main)
-
-
     }
 }
 
