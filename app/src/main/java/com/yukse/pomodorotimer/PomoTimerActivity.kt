@@ -1,5 +1,8 @@
 package com.yukse.pomodorotimer
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -15,6 +18,8 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
 import androidx.preference.PreferenceManager
 import java.text.DecimalFormat
@@ -42,6 +47,10 @@ class PomoTimerActivity : AppCompatActivity() {
     private var ringtone: Ringtone? = null
     private var vibrator: Vibrator? = null
 
+    // notification 객체를 생성해주는 건축가 객체 생성 builder
+    private lateinit var noti_builder: NotificationCompat.Builder
+    private val NOTIFICATION_ID = 1
+
     //UI - binding으로 이후 변경할 것
     lateinit var tv_title: TextView
     lateinit var tv_minutes: TextView
@@ -63,7 +72,7 @@ class PomoTimerActivity : AppCompatActivity() {
         //환경설정 가져오기
         sp = PreferenceManager.getDefaultSharedPreferences(this@PomoTimerActivity)
         //화면 켜진 상태 유지
-        if(sp.getBoolean("display", true)){
+        if (sp.getBoolean("display", true)) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
 
@@ -91,25 +100,84 @@ class PomoTimerActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
-        vibrator?.cancel()
-        ringtone?.stop()
+        Log.d("Txx", "pause")
+
 
         super.onPause()
     }
 
-    override fun onBackPressed() {
+    override fun onStop(){
+        Log.d("Txx", "stop")
+        super.onStop()
+    }
+
+    override fun onDestroy() {
+        Log.d("Txx", "destroy")
+        vibrator?.cancel()
+        ringtone?.stop()
         timer?.cancel()
         autoTimer?.cancel()
+        NotificationManagerCompat.from(this@PomoTimerActivity).cancel(NOTIFICATION_ID)
+
+        super.onDestroy()
+    }
+
+    override fun onBackPressed() {
         //정말 끌건지 확인하는 다이얼로그 띄우기
         AlertDialog.Builder(this@PomoTimerActivity)
             .setMessage("타이머가 종료됩니다.\n현재 작동 중인 타이머를 종료하시겠습니까?")
             .setPositiveButton("확인", DialogInterface.OnClickListener { dialog, which ->
+                timer?.cancel()
+                autoTimer?.cancel()
                 super.onBackPressed()
             })
             .setNegativeButton("취소", DialogInterface.OnClickListener { dialog, which ->
                 startCountDownTimer()
             })
             .show()
+    }
+
+    private fun createNotification() {
+        // 알림을 관리하는 관리자 객체를 운영체제(context)로부터 소환
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        val channelName = getString(R.string.app_name)
+        val channelID = "${this.packageName}-${channelName}"
+
+        // Oreo 버전(API 26) 이상에서는 알림시에 channel 필수 생성
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel =
+                NotificationChannel(channelID, channelName, NotificationManager.IMPORTANCE_LOW)
+            //알림 매니저에게 채널 객체 생성을 요청
+            notificationManager.createNotificationChannel(channel)
+        }
+        // 알림 건축가 객체 생성
+        noti_builder = NotificationCompat.Builder(this, channelID)
+
+        //pending intent
+        val intent = Intent(baseContext, PomoTimerActivity::class.java)
+    //    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+   //     intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        intent.addCategory(Intent.CATEGORY_LAUNCHER)
+        val pendingIntent =
+            PendingIntent.getActivity(baseContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        //건축가에게 원하는 알림의 설정작업
+        noti_builder.setSmallIcon(R.drawable.ic_baseline_timer_24)
+            .setContentIntent(pendingIntent)
+    }
+
+    private fun updateNotification(
+        title: String
+        , text: String
+    ) {
+        noti_builder.setContentTitle(title)
+            .setContentText(text)
+
+        NotificationManagerCompat.from(this@PomoTimerActivity).notify(NOTIFICATION_ID, noti_builder.build())
     }
 
     fun setTimerValue() {
@@ -136,6 +204,7 @@ class PomoTimerActivity : AppCompatActivity() {
 
     fun startCountDownTimer() {
         Log.d("startt", "" + mMillisInFuture + " " + currentTimer + " " + studyCnt)
+        createNotification()
 
         timer =
             object : CountDownTimer(mMillisInFuture, PERIOD) {
@@ -152,6 +221,7 @@ class PomoTimerActivity : AppCompatActivity() {
                     tv_seconds.setText("" + df.format(s))
 
                     Log.d("startt", "" + m + " " + s + " " + studyCnt)
+                    updateNotification(tv_title.text.toString(), "${df.format(m)} : ${df.format(s)}")
 
 
                     mMillisInFuture = millisUntilFinished
@@ -185,7 +255,8 @@ class PomoTimerActivity : AppCompatActivity() {
         }
         //소리
         if (sp.getBoolean("alarm_set", true)) {
-            val default_sound: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            val default_sound: Uri =
+                RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             val alarm_uri = PreferenceManager.getDefaultSharedPreferences(this@PomoTimerActivity)
                 .getString("alarm_sound", default_sound.toString())
             ringtone = RingtoneManager.getRingtone(this@PomoTimerActivity, alarm_uri?.toUri())
@@ -198,8 +269,8 @@ class PomoTimerActivity : AppCompatActivity() {
                 //short rest
                 finishToast = Toast.makeText(
                     this@PomoTimerActivity,
-                    "학습이 종료되었습니다.\n짧은휴식으로 전환됩니다.",
-                    Toast.LENGTH_LONG
+                    "집중이 종료되었습니다.\n휴식으로 전환됩니다.",
+                    Toast.LENGTH_SHORT
                 )
                 currentTimer = CurrentTimer.SHORTREST
                 mMillisInFuture = shortRestT * 60 * PERIOD
@@ -207,8 +278,8 @@ class PomoTimerActivity : AppCompatActivity() {
                 // long rest
                 finishToast = Toast.makeText(
                     this@PomoTimerActivity,
-                    "학습이 종료되었습니다.\n긴휴식으로 전환됩니다.",
-                    Toast.LENGTH_LONG
+                    "집중이 종료되었습니다.\n긴 휴식으로 전환됩니다.",
+                    Toast.LENGTH_SHORT
                 )
                 currentTimer = CurrentTimer.LONGREST
                 mMillisInFuture = longRestT * 60 * PERIOD
@@ -216,8 +287,8 @@ class PomoTimerActivity : AppCompatActivity() {
         } else if (currentTimer == CurrentTimer.SHORTREST) {
             finishToast = Toast.makeText(
                 this@PomoTimerActivity,
-                "짧은휴식이 종료되었습니다.\n학습으로 전환됩니다.",
-                Toast.LENGTH_LONG
+                "휴식이 종료되었습니다.\n집중으로 전환됩니다.",
+                Toast.LENGTH_SHORT
             )
             studyCnt++
             currentTimer = CurrentTimer.STUDY
@@ -225,7 +296,7 @@ class PomoTimerActivity : AppCompatActivity() {
         } else {
             finishToast = Toast.makeText(
                 this@PomoTimerActivity,
-                "긴휴식이 종료되었습니다.\n학습으로 전환됩니다.",
+                "긴 휴식이 종료되었습니다.\n집중으로 전환됩니다.",
                 Toast.LENGTH_LONG
             )
             studyCnt = 1
@@ -248,11 +319,11 @@ class PomoTimerActivity : AppCompatActivity() {
 
     fun setUI() {
         if (currentTimer == CurrentTimer.STUDY) {
-            tv_title.setText("학습")
+            tv_title.setText("집중")
         } else if (currentTimer == CurrentTimer.SHORTREST) {
-            tv_title.setText("짧은휴식")
+            tv_title.setText("휴식")
         } else {
-            tv_title.setText("긴휴식")
+            tv_title.setText("긴 휴식")
         }
 
         tv_minutes.setText(df.format(mMillisInFuture / (60 * PERIOD)).toString())
