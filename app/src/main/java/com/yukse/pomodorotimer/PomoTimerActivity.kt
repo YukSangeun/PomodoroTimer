@@ -1,16 +1,21 @@
 package com.yukse.pomodorotimer
 
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
+import android.media.Ringtone
+import android.media.RingtoneManager
+import android.net.Uri
+import android.os.*
 import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.os.CountDownTimer
 import android.util.Log
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.net.toUri
 import androidx.preference.PreferenceManager
 import java.text.DecimalFormat
 
@@ -34,6 +39,8 @@ class PomoTimerActivity : AppCompatActivity() {
 
     private var timer: CountDownTimer? = null
     private var autoTimer: CountDownTimer? = null
+    private var ringtone: Ringtone? = null
+    private var vibrator: Vibrator? = null
 
     //UI - binding으로 이후 변경할 것
     lateinit var tv_title: TextView
@@ -55,6 +62,10 @@ class PomoTimerActivity : AppCompatActivity() {
         setContentView(R.layout.activity_pomo_timer)
         //환경설정 가져오기
         sp = PreferenceManager.getDefaultSharedPreferences(this@PomoTimerActivity)
+        //화면 켜진 상태 유지
+        if(sp.getBoolean("display", true)){
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
 
         tv_title = findViewById<TextView>(R.id.tv_title)
         tv_minutes = findViewById<TextView>(R.id.tv_timer_minutes)
@@ -77,6 +88,13 @@ class PomoTimerActivity : AppCompatActivity() {
             autoTimer?.start()
         }
 
+    }
+
+    override fun onPause() {
+        vibrator?.cancel()
+        ringtone?.stop()
+
+        super.onPause()
     }
 
     override fun onBackPressed() {
@@ -140,7 +158,6 @@ class PomoTimerActivity : AppCompatActivity() {
 
                 }
             }
-
         timer?.start()
     }
 
@@ -150,6 +167,31 @@ class PomoTimerActivity : AppCompatActivity() {
 
     fun finishedCountDownTimer() {
         val finishToast: Toast
+        vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+
+        //진동
+        if (sp.getBoolean("vibration_set", true)) {
+            // O(26) 버전 전후로 쓰는 방법이 다르다.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator?.vibrate(
+                    VibrationEffect.createOneShot(
+                        1000,
+                        VibrationEffect.DEFAULT_AMPLITUDE
+                    )
+                )
+            } else {
+                vibrator?.vibrate(1000)
+            }
+        }
+        //소리
+        if (sp.getBoolean("alarm_set", true)) {
+            val default_sound: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            val alarm_uri = PreferenceManager.getDefaultSharedPreferences(this@PomoTimerActivity)
+                .getString("alarm_sound", default_sound.toString())
+            ringtone = RingtoneManager.getRingtone(this@PomoTimerActivity, alarm_uri?.toUri())
+
+            ringtone?.play()
+        }
 
         if (currentTimer == CurrentTimer.STUDY) {
             if (studyCnt < pomo || noLongRest) {
@@ -196,6 +238,7 @@ class PomoTimerActivity : AppCompatActivity() {
 
         //UI변경
         setUI()
+        bt_start.setText("시작")
 
         //자동일 경우 바로 전환
         if (auto) {

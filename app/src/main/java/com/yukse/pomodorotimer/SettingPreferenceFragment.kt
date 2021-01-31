@@ -23,7 +23,7 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
 
     //시스템 벨소리에서 알림음 선택하기 - intent
     private fun showRingtonePickerDialog(): Boolean {
-        val default_sound: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+        val default_sound: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val alarm_sound = PreferenceManager.getDefaultSharedPreferences(context)
             .getString("alarm_sound", default_sound.toString())
 
@@ -39,7 +39,7 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, alarm_sound?.toUri())
-        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM)
+        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION)
 
         startActivityForResult(intent, 200)
         return true
