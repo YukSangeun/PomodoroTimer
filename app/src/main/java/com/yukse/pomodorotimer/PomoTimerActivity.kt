@@ -53,8 +53,7 @@ class PomoTimerActivity : AppCompatActivity() {
 
     //UI - binding으로 이후 변경할 것
     lateinit var tv_title: TextView
-    lateinit var tv_minutes: TextView
-    lateinit var tv_seconds: TextView
+    lateinit var tv_time: TextView
     lateinit var tv_pomo: TextView
     lateinit var bt_start: Button
 
@@ -77,8 +76,7 @@ class PomoTimerActivity : AppCompatActivity() {
         }
 
         tv_title = findViewById<TextView>(R.id.tv_title)
-        tv_minutes = findViewById<TextView>(R.id.tv_timer_minutes)
-        tv_seconds = findViewById<TextView>(R.id.tv_timer_seconds)
+        tv_time = findViewById<TextView>(R.id.tv_timer_time)
         tv_pomo = findViewById<TextView>(R.id.tv_pomoTimes)
         bt_start = findViewById<Button>(R.id.bt_start)
         bt_start.setOnClickListener {
@@ -215,14 +213,20 @@ class PomoTimerActivity : AppCompatActivity() {
 
                 override fun onTick(millisUntilFinished: Long) {
                     val s = (millisUntilFinished / PERIOD) % 60
-                    val m = millisUntilFinished / (60 * PERIOD)
+                    val m = (millisUntilFinished / (60 * PERIOD))%60
+                    val h = (millisUntilFinished / (60 * PERIOD))/60
 
-                    tv_minutes.setText("" + df.format(m))
-                    tv_seconds.setText("" + df.format(s))
-
-                    Log.d("startt", "" + m + " " + s + " " + studyCnt)
-                    updateNotification(tv_title.text.toString(), "${df.format(m)} : ${df.format(s)}")
-
+                    if(h > 0){
+                        updateNotification(tv_title.text.toString(), "${df.format(h)} : ${df.format(m)} : ${df.format(s)}")
+                        tv_time.setText("${df.format(h)} : ${df.format(m)} : ${df.format(s)}")
+                    }
+                    else {
+                        tv_time.setText("${df.format(m)} : ${df.format(s)}")
+                        updateNotification(
+                            tv_title.text.toString(),
+                            "${df.format(m)} : ${df.format(s)}"
+                        )
+                    }
 
                     mMillisInFuture = millisUntilFinished
 
@@ -326,8 +330,17 @@ class PomoTimerActivity : AppCompatActivity() {
             tv_title.setText("긴 휴식")
         }
 
-        tv_minutes.setText(df.format(mMillisInFuture / (60 * PERIOD)).toString())
-        tv_seconds.setText(df.format((mMillisInFuture / PERIOD) % 60).toString())
+        val s = (mMillisInFuture / PERIOD) % 60
+        val m = (mMillisInFuture / (60 * PERIOD))%60
+        val h = (mMillisInFuture / (60 * PERIOD))/60
+
+        if(h > 0){
+            tv_time.setText("${df.format(h)} : ${df.format(m)} : ${df.format(s)}")
+        }
+        else {
+            tv_time.setText("${df.format(m)} : ${df.format(s)}")
+        }
+
         if (noLongRest)
             tv_pomo.setText("$studyCnt / INF")
         else
