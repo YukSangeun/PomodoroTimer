@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
@@ -11,6 +12,9 @@ import androidx.preference.PreferenceManager
 import androidx.viewpager.widget.ViewPager
 
 class MainActivity : AppCompatActivity(), ToDoListFragment.OnDataPassLister {
+
+    private var backBtnTime: Long = 0
+
     //to_do_list_fragment에서 전달받은 데이더 -> timer activity로 전달 (중간자)
     override fun onDataPass(item: Todo) {
         val sp = PreferenceManager.getDefaultSharedPreferences(this@MainActivity)
@@ -39,6 +43,18 @@ class MainActivity : AppCompatActivity(), ToDoListFragment.OnDataPassLister {
         //pager 만들기
         val pagerAdapter = FragmentPagerAdapter(supportFragmentManager, 2)
         findViewById<ViewPager>(R.id.vp_main).adapter = pagerAdapter
+    }
+
+    override fun onBackPressed() {
+        val curTime: Long = System.currentTimeMillis();
+        val gapTime: Long = curTime - backBtnTime;
+
+        if (0 <= gapTime && 2000 >= gapTime) {
+            super.onBackPressed();
+        } else {
+            backBtnTime = curTime;
+            Toast.makeText(this, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
+        }
     }
 }
 
