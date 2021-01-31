@@ -74,6 +74,8 @@ class PomoTimerActivity : AppCompatActivity() {
         if (sp.getBoolean("display", true)) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
+        // 공지 띄울 준비
+        createNotification()
 
         tv_title = findViewById<TextView>(R.id.tv_title)
         tv_time = findViewById<TextView>(R.id.tv_timer_time)
@@ -104,7 +106,7 @@ class PomoTimerActivity : AppCompatActivity() {
         super.onPause()
     }
 
-    override fun onStop(){
+    override fun onStop() {
         Log.d("Txx", "stop")
         super.onStop()
     }
@@ -121,16 +123,17 @@ class PomoTimerActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
+        timer?.cancel()
+        autoTimer?.cancel()
         //정말 끌건지 확인하는 다이얼로그 띄우기
         AlertDialog.Builder(this@PomoTimerActivity)
             .setMessage("타이머가 종료됩니다.\n현재 작동 중인 타이머를 종료하시겠습니까?")
             .setPositiveButton("확인", DialogInterface.OnClickListener { dialog, which ->
-                timer?.cancel()
-                autoTimer?.cancel()
                 super.onBackPressed()
             })
             .setNegativeButton("취소", DialogInterface.OnClickListener { dialog, which ->
-                startCountDownTimer()
+                if (bt_start.text.equals("중지"))
+                    startCountDownTimer()
             })
             .show()
     }
@@ -155,8 +158,8 @@ class PomoTimerActivity : AppCompatActivity() {
 
         //pending intent
         val intent = Intent(baseContext, PomoTimerActivity::class.java)
-    //    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-   //     intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+        //    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        //     intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -175,7 +178,8 @@ class PomoTimerActivity : AppCompatActivity() {
         noti_builder.setContentTitle(title)
             .setContentText(text)
 
-        NotificationManagerCompat.from(this@PomoTimerActivity).notify(NOTIFICATION_ID, noti_builder.build())
+        NotificationManagerCompat.from(this@PomoTimerActivity)
+            .notify(NOTIFICATION_ID, noti_builder.build())
     }
 
     fun setTimerValue() {
@@ -202,7 +206,6 @@ class PomoTimerActivity : AppCompatActivity() {
 
     fun startCountDownTimer() {
         Log.d("startt", "" + mMillisInFuture + " " + currentTimer + " " + studyCnt)
-        createNotification()
 
         timer =
             object : CountDownTimer(mMillisInFuture, PERIOD) {
@@ -213,14 +216,16 @@ class PomoTimerActivity : AppCompatActivity() {
 
                 override fun onTick(millisUntilFinished: Long) {
                     val s = (millisUntilFinished / PERIOD) % 60
-                    val m = (millisUntilFinished / (60 * PERIOD))%60
-                    val h = (millisUntilFinished / (60 * PERIOD))/60
+                    val m = (millisUntilFinished / (60 * PERIOD)) % 60
+                    val h = (millisUntilFinished / (60 * PERIOD)) / 60
 
-                    if(h > 0){
-                        updateNotification(tv_title.text.toString(), "${df.format(h)} : ${df.format(m)} : ${df.format(s)}")
+                    if (h > 0) {
+                        updateNotification(
+                            tv_title.text.toString(),
+                            "${df.format(h)} : ${df.format(m)} : ${df.format(s)}"
+                        )
                         tv_time.setText("${df.format(h)} : ${df.format(m)} : ${df.format(s)}")
-                    }
-                    else {
+                    } else {
                         tv_time.setText("${df.format(m)} : ${df.format(s)}")
                         updateNotification(
                             tv_title.text.toString(),
@@ -331,13 +336,12 @@ class PomoTimerActivity : AppCompatActivity() {
         }
 
         val s = (mMillisInFuture / PERIOD) % 60
-        val m = (mMillisInFuture / (60 * PERIOD))%60
-        val h = (mMillisInFuture / (60 * PERIOD))/60
+        val m = (mMillisInFuture / (60 * PERIOD)) % 60
+        val h = (mMillisInFuture / (60 * PERIOD)) / 60
 
-        if(h > 0){
+        if (h > 0) {
             tv_time.setText("${df.format(h)} : ${df.format(m)} : ${df.format(s)}")
-        }
-        else {
+        } else {
             tv_time.setText("${df.format(m)} : ${df.format(s)}")
         }
 
