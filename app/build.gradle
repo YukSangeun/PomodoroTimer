@@ -47,4 +47,6 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:1.1.0"
     // preference
     implementation 'androidx.preference:preference:1.1.0'
+    // fragment KTX 모듈 - viewModel 사용
+    implementation "androidx.fragment:fragment-ktx:1.2.5"
 }
