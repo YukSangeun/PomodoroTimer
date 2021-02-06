@@ -79,7 +79,7 @@ class ToDoListFragment : Fragment() {
         }
 
         // live data를 통한 데이터 관찰 하여 UI 업데이트
-        viewModel.todoLiveData.observe(viewLifecycleOwner, Observer {
+        viewModel.getLiveData().observe(viewLifecycleOwner, Observer {
             (todoView.adapter as TodoAdapter).setData(it)
         })
 

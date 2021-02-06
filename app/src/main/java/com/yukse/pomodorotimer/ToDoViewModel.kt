@@ -1,5 +1,6 @@
 package com.yukse.pomodorotimer
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
@@ -9,8 +10,12 @@ class ToDoViewModel : ViewModel() {
     val todoLiveData = MutableLiveData<List<Todo>>()
     private val todo_data = arrayListOf<Todo>()
 
-    fun getTodo(): ArrayList<Todo>{
+    fun getTodo(): List<Todo>{
         return todo_data
+    }
+
+    fun getLiveData(): LiveData<List<Todo>>{
+        return todoLiveData
     }
 
     fun addTodo(todo: Todo) {
