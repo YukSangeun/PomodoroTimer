@@ -12,9 +12,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,7 +23,6 @@ class ToDoListFragment : Fragment() {
     //아이템 클릭 후 타이머로 이동할 때 값 전달할 interface
     //실제 구현은 timer 액티비티에서
     interface OnDataPassLister {
-        //fun onDataPass(study: Long?, shortRest: Long?, longRest: Long?, pomo: Int?, auto: Boolean?, noLongRest: Boolean?)
         fun onDataPass(item: Todo)
     }
 
@@ -56,7 +55,7 @@ class ToDoListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val todoView = view.findViewById<RecyclerView>(R.id.rv_todolist)
-        val todoAdapter = TodoAdapter(todoView, viewModel.getTodo(), context)
+        val todoAdapter = TodoAdapter(emptyList(), context)
         todoAdapter.setOnItemClickListener(object : TodoAdapter.OnItemClickListener {
             //OnItemClickListener 인터페이스를 통해 전달받는 함수
             // 1. 아이템  삭제/수정 다이얼로그 띄우기
@@ -79,6 +78,11 @@ class ToDoListFragment : Fragment() {
             itemInfoEditDialog(todoView, "할 일 추가", 0, context)
         }
 
+        // live data를 통한 데이터 관찰 하여 UI 업데이트
+        viewModel.todoLiveData.observe(viewLifecycleOwner, Observer {
+            (todoView.adapter as TodoAdapter).setData(it)
+        })
+
     }
 
     //수정 or 삭제 다이얼로그 띄우기
@@ -99,7 +103,6 @@ class ToDoListFragment : Fragment() {
                     1 -> {
                         //삭제
                         viewModel.deleteTodo(position)
-                        todoView.adapter?.notifyDataSetChanged()
                     }
                 }
             })
@@ -218,28 +221,12 @@ class ToDoListFragment : Fragment() {
                             ))
                     }
                 }
-                todoView.adapter?.notifyDataSetChanged()
 
                 dialog.dismiss()
             })
             .setNegativeButton("취소", null)
             .show()
     }
-
-//    private fun addTodo(todo: Todo){
-//        todo_data.add(todo)
-//        todoView.adapter?.notifyDataSetChanged()
-//    }
-//
-//    private fun editTodo(position: Int, todo: Todo){
-//        todo_data.set(position, todo)
-//        todoView.adapter?.notifyDataSetChanged()
-//    }
-//
-//    private fun deleteTodo(position: Int){
-//        todo_data.removeAt(position)
-//        todoView.adapter?.notifyDataSetChanged()
-//    }
 
     // long timer를 사용하지 않을 경우 연관된 editText 수정불가로 변경
     fun noLongTimer(isChecked: Boolean, et_longRest: EditText, et_times: EditText) {
@@ -263,9 +250,8 @@ class ToDoListFragment : Fragment() {
 
 //recyclerViewAdater
 class TodoAdapter(
-    val todoView: RecyclerView,
-    val itemList: ArrayList<Todo>,
-    val context: Context?
+    private var todoList: List<Todo>,
+    private val context: Context?
 ) : RecyclerView.Adapter<TodoAdapter.ViewHolder>() {
     // 아이템 클릭시 작동을 위한 인터페이스
     interface OnItemClickListener {
@@ -307,10 +293,16 @@ class TodoAdapter(
     }
 
     override fun getItemCount(): Int {
-        return itemList.size
+        return todoList.size
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.todoText.setText(itemList.get(position).title)
+        holder.todoText.setText(todoList.get(position).title)
+    }
+
+    //live data를 이용한 데이터 갱신을 위해 구현 - 이 함수 호출하면 데이터 바뀌도록.
+    fun setData(newData: List<Todo>){
+        todoList = newData
+        notifyDataSetChanged()
     }
 }
