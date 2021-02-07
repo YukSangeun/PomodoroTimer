@@ -5,10 +5,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.fragment.app.FragmentActivity
 import androidx.preference.PreferenceManager
-import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.yukse.pomodorotimer.database.ToDoEntity
 
 class MainActivity : AppCompatActivity(), ToDoListFragment.OnDataPassLister {
@@ -19,12 +19,16 @@ class MainActivity : AppCompatActivity(), ToDoListFragment.OnDataPassLister {
     override fun onDataPass(item: ToDoEntity) {
         val sp = PreferenceManager.getDefaultSharedPreferences(this@MainActivity)
 
-        val studyT = if (item.study == null) sp.getInt("study_time",1).toLong() else item.study
-        val shortRestT = if (item.short_rest == null) sp.getInt("short_rest_time",1).toLong() else item.short_rest
-        val longRestT = if (item.long_rest == null) sp.getInt("long_rest_time", 1).toLong()else item.long_rest
+        val studyT = if (item.study == null) sp.getInt("study_time", 1).toLong() else item.study
+        val shortRestT = if (item.short_rest == null) sp.getInt("short_rest_time", 1)
+            .toLong() else item.short_rest
+        val longRestT =
+            if (item.long_rest == null) sp.getInt("long_rest_time", 1).toLong() else item.long_rest
         val pomo = if (item.pomo == null) sp.getInt("long_rest_pomo", 4) else item.pomo
-        val auto = if (item.autoStart == null) sp.getBoolean("auto_timer", false) else item.autoStart
-        val noLongRest = if(item.noLong == null) !(sp.getBoolean("use_long_rest", true)) else item.noLong
+        val auto =
+            if (item.autoStart == null) sp.getBoolean("auto_timer", false) else item.autoStart
+        val noLongRest =
+            if (item.noLong == null) !(sp.getBoolean("use_long_rest", true)) else item.noLong
 
         val intent: Intent = Intent(this@MainActivity, PomoTimerActivity::class.java)
         intent.putExtra("study", studyT)
@@ -40,9 +44,15 @@ class MainActivity : AppCompatActivity(), ToDoListFragment.OnDataPassLister {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //pager 만들기
-        val pagerAdapter = FragmentPagerAdapter(supportFragmentManager, 2)
-        findViewById<ViewPager>(R.id.vp_main).adapter = pagerAdapter
+        //view pager2
+        val pagerAdapter = FragmentPagerAdapter(this, 2)
+        findViewById<ViewPager2>(R.id.vp_main).adapter = pagerAdapter
+        // view pager setting
+        with(findViewById<ViewPager2>(R.id.vp_main)) {
+            this.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+            this.currentItem = 0
+        }
+
     }
 
     override fun onBackPressed() {
@@ -59,10 +69,10 @@ class MainActivity : AppCompatActivity(), ToDoListFragment.OnDataPassLister {
 }
 
 class FragmentPagerAdapter(
-    fragmentManager: FragmentManager,
-    val tabCount: Int
-) : FragmentStatePagerAdapter(fragmentManager) {
-    override fun getItem(position: Int): Fragment {
+    fragmentActivity: FragmentActivity,
+    private val tabCount: Int
+) : FragmentStateAdapter(fragmentActivity) {
+    override fun createFragment(position: Int): Fragment {
         when (position) {
             0 -> {
                 return TotalTimeFragment()
@@ -73,7 +83,7 @@ class FragmentPagerAdapter(
         }
     }
 
-    override fun getCount(): Int {
+    override fun getItemCount(): Int {
         return tabCount
     }
 }
