@@ -13,21 +13,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.yukse.pomodorotimer.database.ToDoEntity
+import com.yukse.pomodorotimer.database.ToDoViewModel
 
 class ToDoListFragment : Fragment() {
     //아이템 클릭 후 타이머로 이동할 때 값 전달할 interface
     //실제 구현은 timer 액티비티에서
     interface OnDataPassLister {
-        fun onDataPass(item: Todo)
+        fun onDataPass(item: ToDoEntity)
     }
 
     private lateinit var dataPassListener: OnDataPassLister
-    private val viewModel: ToDoViewModel by viewModels()
+    private lateinit var viewModel: ToDoViewModel
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -54,6 +56,9 @@ class ToDoListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // view model 생성
+        viewModel = ViewModelProvider(this).get(ToDoViewModel::class.java)
+
         val todoView = view.findViewById<RecyclerView>(R.id.rv_todolist)
         val todoAdapter = TodoAdapter(emptyList(), context)
         todoAdapter.setOnItemClickListener(object : TodoAdapter.OnItemClickListener {
@@ -65,13 +70,14 @@ class ToDoListFragment : Fragment() {
 
             // 2. 타이머로 값 전달 후 이동
             override fun onItemTitleClick(position: Int) {
-                dataPassListener.onDataPass(viewModel.getTodo()[position])
+                dataPassListener.onDataPass(viewModel.getTodo()!![position])
             }
         })
         with(todoView) {
             this.adapter = todoAdapter
             this.layoutManager = LinearLayoutManager(context)
         }
+
 
         //add버튼 눌렀을 때 아이템 추가 - 추가 다이어로그 띄우기
         view.findViewById<Button>(R.id.bt_add).setOnClickListener {
@@ -82,7 +88,6 @@ class ToDoListFragment : Fragment() {
         viewModel.getLiveData().observe(viewLifecycleOwner, Observer {
             (todoView.adapter as TodoAdapter).setData(it)
         })
-
     }
 
     //수정 or 삭제 다이얼로그 띄우기
@@ -94,7 +99,7 @@ class ToDoListFragment : Fragment() {
         val eord_list = arrayOf("수정", "삭제")
 
         AlertDialog.Builder(context)
-            .setTitle(viewModel.getTodo()[position].title)
+            .setTitle(viewModel.getTodo()!![position].title)
             .setItems(eord_list, DialogInterface.OnClickListener { dialog, which ->
                 when (which) {
                     0 -> {
@@ -128,13 +133,13 @@ class ToDoListFragment : Fragment() {
 
         //기존 값 불러와 화면에 표시
         if (title.equals("할 일 수정")) {
-            et_title.setText(viewModel.getTodo()[position].title)
-            et_times.setText(viewModel.getTodo()[position].pomoCnt.toString())
-            et_study.setText(viewModel.getTodo()[position].studyTime.toString())
-            et_rest.setText(viewModel.getTodo()[position].shortRestTime.toString())
-            et_longRest.setText(viewModel.getTodo()[position].longRestTime.toString())
-            cb_pomo_auto_run.isChecked = viewModel.getTodo()[position].autoStart
-            cb_no_long_rest.isChecked = viewModel.getTodo()[position].noLongRest
+            et_title.setText(viewModel.getTodo()!![position].title)
+            et_times.setText(viewModel.getTodo()!![position].pomo.toString())
+            et_study.setText(viewModel.getTodo()!![position].study.toString())
+            et_rest.setText(viewModel.getTodo()!![position].short_rest.toString())
+            et_longRest.setText(viewModel.getTodo()!![position].long_rest.toString())
+            cb_pomo_auto_run.isChecked = viewModel.getTodo()!![position].autoStart
+            cb_no_long_rest.isChecked = viewModel.getTodo()!![position].noLong
         } else {   //"할 일 추가"
             val sp = PreferenceManager.getDefaultSharedPreferences(context)
             et_times.setText(sp.getInt("long_rest_pomo", 4).toString())
@@ -199,26 +204,31 @@ class ToDoListFragment : Fragment() {
             .setPositiveButton("확인", DialogInterface.OnClickListener { dialog, which ->
                 when (title) {
                     "할 일 추가" -> {
-                        viewModel.addTodo(Todo(
-                                et_title.text.toString(),
-                                Integer.parseInt(et_times.text.toString()),
-                                et_study.text.toString().toLong(),
-                                et_rest.text.toString().toLong(),
-                                et_longRest.text.toString().toLong(),
-                                cb_pomo_auto_run.isChecked,
-                                cb_no_long_rest.isChecked
-                            ))
+                        viewModel.addTodo(
+                            ToDoEntity(
+                                title = et_title.text.toString(),
+                                pomo = Integer.parseInt(et_times.text.toString()),
+                                study = et_study.text.toString().toLong(),
+                                short_rest = et_rest.text.toString().toLong(),
+                                long_rest = et_longRest.text.toString().toLong(),
+                                autoStart = cb_pomo_auto_run.isChecked,
+                                noLong = cb_no_long_rest.isChecked
+                            )
+                        )
                     }
                     "할 일 수정" -> {
-                        viewModel.editTodo(position, Todo(
-                                et_title.text.toString(),
-                                Integer.parseInt(et_times.text.toString()),
-                                et_study.text.toString().toLong(),
-                                et_rest.text.toString().toLong(),
-                                et_longRest.text.toString().toLong(),
-                                cb_pomo_auto_run.isChecked,
-                                cb_no_long_rest.isChecked
-                            ))
+                        viewModel.editTodo(
+                            ToDoEntity(
+                                id = viewModel.getTodo()?.get(position)!!.id,
+                                title = et_title.text.toString(),
+                                pomo = Integer.parseInt(et_times.text.toString()),
+                                study = et_study.text.toString().toLong(),
+                                short_rest = et_rest.text.toString().toLong(),
+                                long_rest = et_longRest.text.toString().toLong(),
+                                autoStart = cb_pomo_auto_run.isChecked,
+                                noLong = cb_no_long_rest.isChecked
+                            )
+                        )
                     }
                 }
 
@@ -250,7 +260,7 @@ class ToDoListFragment : Fragment() {
 
 //recyclerViewAdater
 class TodoAdapter(
-    private var todoList: List<Todo>,
+    private var todoList: List<ToDoEntity>,
     private val context: Context?
 ) : RecyclerView.Adapter<TodoAdapter.ViewHolder>() {
     // 아이템 클릭시 작동을 위한 인터페이스
@@ -262,7 +272,7 @@ class TodoAdapter(
         fun onItemTitleClick(position: Int)
     }
 
-    lateinit var itemClickListener: OnItemClickListener
+    private lateinit var itemClickListener: OnItemClickListener
 
     fun setOnItemClickListener(listener: OnItemClickListener) {
         //fragment에서 아이템 클릭리스너 호출 후 listener 구현할 것
@@ -301,7 +311,7 @@ class TodoAdapter(
     }
 
     //live data를 이용한 데이터 갱신을 위해 구현 - 이 함수 호출하면 데이터 바뀌도록.
-    fun setData(newData: List<Todo>){
+    internal fun setData(newData: List<ToDoEntity>) {
         todoList = newData
         notifyDataSetChanged()
     }
