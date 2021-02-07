@@ -3,6 +3,7 @@ package com.yukse.pomodorotimer
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
@@ -31,6 +32,9 @@ class ToDoListFragment : Fragment() {
     private lateinit var dataPassListener: OnDataPassLister
     private lateinit var viewModel: ToDoViewModel
 
+    //환경설정 변수
+    private lateinit var sp: SharedPreferences
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
@@ -55,6 +59,9 @@ class ToDoListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        //환경설정 가져오기
+        sp = PreferenceManager.getDefaultSharedPreferences(context)
 
         // view model 생성
         viewModel = ViewModelProvider(this).get(ToDoViewModel::class.java)
@@ -141,11 +148,10 @@ class ToDoListFragment : Fragment() {
             cb_pomo_auto_run.isChecked = viewModel.getTodo()!![position].autoStart
             cb_no_long_rest.isChecked = viewModel.getTodo()!![position].noLong
         } else {   //"할 일 추가"
-            val sp = PreferenceManager.getDefaultSharedPreferences(context)
             et_times.setText(sp.getInt("long_rest_pomo", 4).toString())
-            et_study.setText(sp.getInt("study_time", 1).toString())
-            et_rest.setText(sp.getInt("short_rest_time", 1).toString())
-            et_longRest.setText(sp.getInt("long_rest_time", 1).toString())
+            et_study.setText(sp.getInt("study_time", 25).toString())
+            et_rest.setText(sp.getInt("short_rest_time", 5).toString())
+            et_longRest.setText(sp.getInt("long_rest_time", 30).toString())
             cb_pomo_auto_run.isChecked = sp.getBoolean("auto_timer", false)
             cb_no_long_rest.isChecked = !(sp.getBoolean("use_long_rest", true))
         }
@@ -160,9 +166,11 @@ class ToDoListFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val number = s.toString().toInt()
-                if (number > 240) {
-                    et_study.setText("240")
+                val number = s.toString()
+                if (number != "") {
+                    if (number.toInt() > 240) {
+                        et_study.setText("240")
+                    }
                 }
             }
         }
@@ -171,9 +179,11 @@ class ToDoListFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val number = s.toString().toInt()
-                if (number > 240) {
-                    et_rest.setText("240")
+                val number = s.toString()
+                if (number != "") {
+                    if (number.toInt() > 240) {
+                        et_rest.setText("240")
+                    }
                 }
             }
         })
@@ -181,9 +191,11 @@ class ToDoListFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val number = s.toString().toInt()
-                if (number > 240) {
-                    et_longRest.setText("240")
+                val number = s.toString()
+                if (number != "") {
+                    if (number.toInt() > 240) {
+                        et_longRest.setText("240")
+                    }
                 }
             }
         })
@@ -191,51 +203,68 @@ class ToDoListFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val number = s.toString().toInt()
-                if (number > 10) {
-                    et_times.setText("10")
+                val number = s.toString()
+                if (number != "") {
+                    if (number.toInt() > 10) {
+                        et_times.setText("10")
+                    }
                 }
             }
         })
 
-        AlertDialog.Builder(context)
+        val dialog = AlertDialog.Builder(context)
             .setTitle(title)
             .setView(addDialogView)
-            .setPositiveButton("확인", DialogInterface.OnClickListener { dialog, which ->
-                when (title) {
-                    "할 일 추가" -> {
-                        viewModel.addTodo(
-                            ToDoEntity(
-                                title = et_title.text.toString(),
-                                pomo = Integer.parseInt(et_times.text.toString()),
-                                study = et_study.text.toString().toLong(),
-                                short_rest = et_rest.text.toString().toLong(),
-                                long_rest = et_longRest.text.toString().toLong(),
-                                autoStart = cb_pomo_auto_run.isChecked,
-                                noLong = cb_no_long_rest.isChecked
-                            )
-                        )
-                    }
-                    "할 일 수정" -> {
-                        viewModel.editTodo(
-                            ToDoEntity(
-                                id = viewModel.getTodo()?.get(position)!!.id,
-                                title = et_title.text.toString(),
-                                pomo = Integer.parseInt(et_times.text.toString()),
-                                study = et_study.text.toString().toLong(),
-                                short_rest = et_rest.text.toString().toLong(),
-                                long_rest = et_longRest.text.toString().toLong(),
-                                autoStart = cb_pomo_auto_run.isChecked,
-                                noLong = cb_no_long_rest.isChecked
-                            )
-                        )
+            .setPositiveButton("확인", null)
+            .setNegativeButton("취소", null)
+            .create()
+        //dialog show시 이벤트
+        //dialog의 버튼 listener 바꾸기. 클릭시 자동을 dismiss()호출 방지
+        dialog.setOnShowListener(object : DialogInterface.OnShowListener {
+            override fun onShow(dialog: DialogInterface?) {
+                (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                    //빈칸이 존재할 경우 toast 띄우기
+                    if (et_title.text.toString().equals("") || et_study.text.toString()
+                            .equals("") || et_rest.text.toString()
+                            .equals("") || (!cb_no_long_rest.isChecked && (et_longRest.text.toString()
+                            .equals(
+                                ""
+                            ) || et_times.text.toString().equals("")))
+                    ) {
+                        Toast.makeText(context, "빈 칸을 채워주세요.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        when (title) {
+                            "할 일 추가" -> {
+                                addToDo(
+                                    title = et_title.text.toString(),
+                                    study = et_study.text.toString(),
+                                    short_rest = et_rest.text.toString(),
+                                    long_rest = et_longRest.text.toString(),
+                                    pomo = et_times.text.toString(),
+                                    autoStart = cb_pomo_auto_run.isChecked,
+                                    noLong = cb_no_long_rest.isChecked
+                                )
+                            }
+                            "할 일 수정" -> {
+                                editToDo(
+                                    id = viewModel.getTodo()?.get(position)!!.id,
+                                    title = et_title.text.toString(),
+                                    pomo = et_times.text.toString(),
+                                    study = et_study.text.toString(),
+                                    short_rest = et_rest.text.toString(),
+                                    long_rest = et_longRest.text.toString(),
+                                    autoStart = cb_pomo_auto_run.isChecked,
+                                    noLong = cb_no_long_rest.isChecked
+                                )
+                            }
+                        }
+                        dialog.dismiss()
                     }
                 }
+            }
+        })
+        dialog.show()
 
-                dialog.dismiss()
-            })
-            .setNegativeButton("취소", null)
-            .show()
     }
 
     // long timer를 사용하지 않을 경우 연관된 editText 수정불가로 변경
@@ -255,6 +284,62 @@ class ToDoListFragment : Fragment() {
             et_times.isFocusable = true
             et_times.setTextColor(Color.parseColor("#000000"))
         }
+    }
+
+    fun addToDo(
+        title: String,
+        study: String,
+        short_rest: String,
+        long_rest: String,
+        pomo: String,
+        noLong: Boolean,
+        autoStart: Boolean
+    ) {
+        // long rest를 사용하지 않을 경우, long time 과 pomo를 빈칸으로 남겨둘 때 에러 발생 방지
+        val long_ =
+            if (long_rest == "") sp.getInt("long_rest_time", 30).toLong() else long_rest.toLong()
+        val pomo_ = if (pomo == "") sp.getInt("long_rest_pomo", 4) else pomo.toInt()
+
+        viewModel.addTodo(
+            ToDoEntity(
+                title = title,
+                pomo = pomo_,
+                study = study.toLong(),
+                short_rest = short_rest.toLong(),
+                long_rest = long_,
+                autoStart = autoStart,
+                noLong = noLong
+            )
+        )
+    }
+
+    fun editToDo(
+        id: Int,
+        title: String,
+        study: String,
+        short_rest: String,
+        long_rest: String,
+        pomo: String,
+        noLong: Boolean,
+        autoStart: Boolean
+    ) {
+        // long rest를 사용하지 않을 경우, long time 과 pomo를 빈칸으로 남겨둘 때 에러 발생 방지
+        val long_ =
+            if (long_rest == "") sp.getInt("long_rest_time", 30).toLong() else long_rest.toLong()
+        val pomo_ = if (pomo == "") sp.getInt("long_rest_pomo", 4) else pomo.toInt()
+
+        viewModel.editTodo(
+            ToDoEntity(
+                id = id,
+                title = title,
+                pomo = pomo_,
+                study = study.toLong(),
+                short_rest = short_rest.toLong(),
+                long_rest = long_,
+                autoStart = autoStart,
+                noLong = noLong
+            )
+        )
     }
 }
 
