@@ -10,10 +10,12 @@ import androidx.preference.PreferenceManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.yukse.pomodorotimer.database.ToDoEntity
+import com.yukse.pomodorotimer.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(), ToDoListFragment.OnDataPassLister {
 
     private var backBtnTime: Long = 0
+    private lateinit var binding: ActivityMainBinding
 
     //to_do_list_fragment에서 전달받은 데이더 -> timer activity로 전달 (중간자)
     override fun onDataPass(item: ToDoEntity) {
@@ -42,13 +44,14 @@ class MainActivity : AppCompatActivity(), ToDoListFragment.OnDataPassLister {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         //view pager2
         val pagerAdapter = FragmentPagerAdapter(this, 2)
-        findViewById<ViewPager2>(R.id.vp_main).adapter = pagerAdapter
+        binding.vpMain.adapter = pagerAdapter
         // view pager setting
-        with(findViewById<ViewPager2>(R.id.vp_main)) {
+        with(binding.vpMain) {
             this.orientation = ViewPager2.ORIENTATION_HORIZONTAL
             this.currentItem = 0
         }

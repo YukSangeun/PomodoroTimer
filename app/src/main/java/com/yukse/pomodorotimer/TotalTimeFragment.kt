@@ -8,8 +8,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
+import com.yukse.pomodorotimer.databinding.TotaltimeFragmentBinding
 
 class TotalTimeFragment : Fragment(){
+
+    private var _binding: TotaltimeFragmentBinding? = null
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    private val binding get() = _binding!!
 
     //뷰를 그리는 라이프사이클
     override fun onCreateView(
@@ -20,23 +26,26 @@ class TotalTimeFragment : Fragment(){
         Log.d("life_cycle", "onCreateView")
 
         //프래그먼트가 인터페이스를 처음으로 그릴 때 호출된다.
-        // inflater : 뷰를 그려주는 역할
-        // container : 부모 뷰
-        //inflate의 반환값이 view이므로 그대로 반환해주면 됨.
-        return inflater.inflate(R.layout.totaltime_fragment, container, false)
+        _binding = TotaltimeFragmentBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        view.findViewById<Button>(R.id.bt_start).setOnClickListener {
+        binding.btStart.setOnClickListener {
             val timer_intent = Intent(context, PomoTimerActivity::class.java)
             startActivity(timer_intent)
         }
 
-        view.findViewById<Button>(R.id.bt_setting).setOnClickListener{
+        binding.btSetting.setOnClickListener{
             val setting_intnet = Intent(context, SettingActivity::class.java)
             startActivity(setting_intnet)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

@@ -22,6 +22,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
 import androidx.preference.PreferenceManager
+import com.yukse.pomodorotimer.databinding.ActivityPomoTimerBinding
 import java.text.DecimalFormat
 
 class PomoTimerActivity : AppCompatActivity() {
@@ -31,6 +32,9 @@ class PomoTimerActivity : AppCompatActivity() {
         SHORTREST,
         LONGREST
     }
+
+    //binding
+    private lateinit var binding: ActivityPomoTimerBinding
 
     private val PERIOD: Long = 1000
     private val df = DecimalFormat("00")
@@ -51,12 +55,6 @@ class PomoTimerActivity : AppCompatActivity() {
     private lateinit var noti_builder: NotificationCompat.Builder
     private val NOTIFICATION_ID = 1
 
-    //UI - binding으로 이후 변경할 것
-    lateinit var tv_title: TextView
-    lateinit var tv_time: TextView
-    lateinit var tv_pomo: TextView
-    lateinit var bt_start: Button
-
     //intent를 통해 가져올 데이터 (없으면 환경설정에서 가져옴)
     private var studyT: Long = 1
     private var shortRestT: Long = 1
@@ -67,7 +65,8 @@ class PomoTimerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_pomo_timer)
+        binding = ActivityPomoTimerBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         //환경설정 가져오기
         sp = PreferenceManager.getDefaultSharedPreferences(this@PomoTimerActivity)
         //화면 켜진 상태 유지
@@ -77,11 +76,7 @@ class PomoTimerActivity : AppCompatActivity() {
         // 공지 띄울 준비
         createNotification()
 
-        tv_title = findViewById<TextView>(R.id.tv_title)
-        tv_time = findViewById<TextView>(R.id.tv_timer_time)
-        tv_pomo = findViewById<TextView>(R.id.tv_pomoTimes)
-        bt_start = findViewById<Button>(R.id.bt_start)
-        bt_start.setOnClickListener {
+        binding.btStart.setOnClickListener {
             startButtonClick()
         }
 
@@ -101,8 +96,6 @@ class PomoTimerActivity : AppCompatActivity() {
 
     override fun onPause() {
         Log.d("Txx", "pause")
-
-
         super.onPause()
     }
 
@@ -132,7 +125,7 @@ class PomoTimerActivity : AppCompatActivity() {
                 super.onBackPressed()
             })
             .setNegativeButton("취소", DialogInterface.OnClickListener { dialog, which ->
-                if (bt_start.text.equals("중지"))
+                if (binding.btStart.text.equals("중지"))
                     startCountDownTimer()
             })
             .show()
@@ -197,7 +190,7 @@ class PomoTimerActivity : AppCompatActivity() {
             object : CountDownTimer(PERIOD * 1, PERIOD) {
                 override fun onFinish() {
                     startCountDownTimer()
-                    bt_start.setText("중지")
+                    binding.btStart.setText("중지")
                 }
 
                 override fun onTick(millisUntilFinished: Long) {}
@@ -221,14 +214,18 @@ class PomoTimerActivity : AppCompatActivity() {
 
                     if (h > 0) {
                         updateNotification(
-                            tv_title.text.toString(),
+                            binding.tvTitle.text.toString(),
                             "${df.format(h)} : ${df.format(m)} : ${df.format(s)}"
                         )
-                        tv_time.setText("${df.format(h)} : ${df.format(m)} : ${df.format(s)}")
+                        binding.tvTimerTime.setText(
+                            "${df.format(h)} : ${df.format(m)} : ${df.format(
+                                s
+                            )}"
+                        )
                     } else {
-                        tv_time.setText("${df.format(m)} : ${df.format(s)}")
+                        binding.tvTimerTime.setText("${df.format(m)} : ${df.format(s)}")
                         updateNotification(
-                            tv_title.text.toString(),
+                            binding.tvTitle.text.toString(),
                             "${df.format(m)} : ${df.format(s)}"
                         )
                     }
@@ -318,7 +315,7 @@ class PomoTimerActivity : AppCompatActivity() {
 
         //UI변경
         setUI()
-        bt_start.setText("시작")
+        binding.btStart.setText("시작")
 
         //자동일 경우 바로 전환
         if (auto) {
@@ -328,11 +325,11 @@ class PomoTimerActivity : AppCompatActivity() {
 
     fun setUI() {
         if (currentTimer == CurrentTimer.STUDY) {
-            tv_title.setText("집중")
+            binding.tvTitle.setText("집중")
         } else if (currentTimer == CurrentTimer.SHORTREST) {
-            tv_title.setText("휴식")
+            binding.tvTitle.setText("휴식")
         } else {
-            tv_title.setText("긴 휴식")
+            binding.tvTitle.setText("긴 휴식")
         }
 
         val s = (mMillisInFuture / PERIOD) % 60
@@ -340,24 +337,24 @@ class PomoTimerActivity : AppCompatActivity() {
         val h = (mMillisInFuture / (60 * PERIOD)) / 60
 
         if (h > 0) {
-            tv_time.setText("${df.format(h)} : ${df.format(m)} : ${df.format(s)}")
+            binding.tvTimerTime.setText("${df.format(h)} : ${df.format(m)} : ${df.format(s)}")
         } else {
-            tv_time.setText("${df.format(m)} : ${df.format(s)}")
+            binding.tvTimerTime.setText("${df.format(m)} : ${df.format(s)}")
         }
 
         if (noLongRest)
-            tv_pomo.setText("$studyCnt / INF")
+            binding.tvPomoTimes.setText("$studyCnt / INF")
         else
-            tv_pomo.setText("$studyCnt / $pomo")
+            binding.tvPomoTimes.setText("$studyCnt / $pomo")
     }
 
     fun startButtonClick() {
-        if (bt_start.text.equals("시작")) {
+        if (binding.btStart.text.equals("시작")) {
             startCountDownTimer()
-            bt_start.setText("중지")
+            binding.btStart.setText("중지")
         } else {
             pauseCountDownTimer()
-            bt_start.setText("시작")
+            binding.btStart.setText("시작")
 
         }
     }

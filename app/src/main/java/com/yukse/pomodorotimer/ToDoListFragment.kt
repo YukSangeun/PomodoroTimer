@@ -21,6 +21,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.yukse.pomodorotimer.database.ToDoEntity
 import com.yukse.pomodorotimer.database.ToDoViewModel
+import com.yukse.pomodorotimer.databinding.TodoItemDialogBinding
+import com.yukse.pomodorotimer.databinding.TodoItemViewBinding
+import com.yukse.pomodorotimer.databinding.TodolistFragmentBinding
 
 class ToDoListFragment : Fragment() {
     //아이템 클릭 후 타이머로 이동할 때 값 전달할 interface
@@ -29,6 +32,10 @@ class ToDoListFragment : Fragment() {
         fun onDataPass(item: ToDoEntity)
     }
 
+    private var _binding: TodolistFragmentBinding? = null
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    private val binding get() = _binding!!
     private lateinit var dataPassListener: OnDataPassLister
     private lateinit var viewModel: ToDoViewModel
 
@@ -53,8 +60,9 @@ class ToDoListFragment : Fragment() {
         //프래그먼트가 인터페이스를 처음으로 그릴 때 호출된다.
         // inflater : 뷰를 그려주는 역할
         // container : 부모 뷰
-        //inflate의 반환값이 view이므로 그대로 반환해주면 됨.
-        return inflater.inflate(R.layout.todolist_fragment, container, false)
+        //inflater.inflate의 반환값이 view이므로 그대로 반환해주면 됨.
+        _binding = TodolistFragmentBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -66,13 +74,12 @@ class ToDoListFragment : Fragment() {
         // view model 생성
         viewModel = ViewModelProvider(this).get(ToDoViewModel::class.java)
 
-        val todoView = view.findViewById<RecyclerView>(R.id.rv_todolist)
         val todoAdapter = TodoAdapter(emptyList(), context)
         todoAdapter.setOnItemClickListener(object : TodoAdapter.OnItemClickListener {
             //OnItemClickListener 인터페이스를 통해 전달받는 함수
             // 1. 아이템  삭제/수정 다이얼로그 띄우기
             override fun onItemButtonClick(position: Int) {
-                itemEditORDeleteDialog(todoView, position, context)
+                itemEditORDeleteDialog(position, context)
             }
 
             // 2. 타이머로 값 전달 후 이동
@@ -80,26 +87,30 @@ class ToDoListFragment : Fragment() {
                 dataPassListener.onDataPass(viewModel.getTodo()!![position])
             }
         })
-        with(todoView) {
+        with(binding.rvTodolist) {
             this.adapter = todoAdapter
             this.layoutManager = LinearLayoutManager(context)
         }
 
 
         //add버튼 눌렀을 때 아이템 추가 - 추가 다이어로그 띄우기
-        view.findViewById<Button>(R.id.bt_add).setOnClickListener {
-            itemInfoEditDialog(todoView, "할 일 추가", 0, context)
+        binding.btAdd.setOnClickListener {
+            itemInfoEditDialog("할 일 추가", 0, context)
         }
 
         // live data를 통한 데이터 관찰 하여 UI 업데이트
         viewModel.getLiveData().observe(viewLifecycleOwner, Observer {
-            (todoView.adapter as TodoAdapter).setData(it)
+            (binding.rvTodolist.adapter as TodoAdapter).setData(it)
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     //수정 or 삭제 다이얼로그 띄우기
     fun itemEditORDeleteDialog(
-        todoView: RecyclerView,
         position: Int,
         context: Context?
     ) {
@@ -110,7 +121,7 @@ class ToDoListFragment : Fragment() {
             .setItems(eord_list, DialogInterface.OnClickListener { dialog, which ->
                 when (which) {
                     0 -> {
-                        itemInfoEditDialog(todoView, "할 일 수정", position, context)
+                        itemInfoEditDialog("할 일 수정", position, context)
                     }
                     1 -> {
                         //삭제
@@ -123,90 +134,81 @@ class ToDoListFragment : Fragment() {
 
     //아이템 수정 or 추가 다이얼로그 띄우기
     fun itemInfoEditDialog(
-        todoView: RecyclerView,
         title: String,   //dialog title에 적을 문자열
         position: Int,   //edit경우 수정할 아이템의 위치를 알아야한다.
         context: Context?
     ) {
-        val addDialogView = LayoutInflater.from(context).inflate(R.layout.todo_item_dialog, null)
-
-        val et_title = addDialogView.findViewById<EditText>(R.id.et_title)
-        val et_times = addDialogView.findViewById<EditText>(R.id.et_times)
-        val et_study = addDialogView.findViewById<EditText>(R.id.et_study)
-        val et_rest = addDialogView.findViewById<EditText>(R.id.et_rest)
-        val et_longRest = addDialogView.findViewById<EditText>(R.id.et_long_rest)
-        val cb_pomo_auto_run = addDialogView.findViewById<CheckBox>(R.id.cb_pomo_auto_run)
-        val cb_no_long_rest = addDialogView.findViewById<CheckBox>(R.id.cb_no_long)
+        val dialogBinding = TodoItemDialogBinding.inflate(LayoutInflater.from(context))
 
         //기존 값 불러와 화면에 표시
         if (title.equals("할 일 수정")) {
-            et_title.setText(viewModel.getTodo()!![position].title)
-            et_times.setText(viewModel.getTodo()!![position].pomo.toString())
-            et_study.setText(viewModel.getTodo()!![position].study.toString())
-            et_rest.setText(viewModel.getTodo()!![position].short_rest.toString())
-            et_longRest.setText(viewModel.getTodo()!![position].long_rest.toString())
-            cb_pomo_auto_run.isChecked = viewModel.getTodo()!![position].autoStart
-            cb_no_long_rest.isChecked = viewModel.getTodo()!![position].noLong
+            dialogBinding.etTitle.setText(viewModel.getTodo()!![position].title)
+            dialogBinding.etTimes.setText(viewModel.getTodo()!![position].pomo.toString())
+            dialogBinding.etStudy.setText(viewModel.getTodo()!![position].study.toString())
+            dialogBinding.etRest.setText(viewModel.getTodo()!![position].short_rest.toString())
+            dialogBinding.etLongRest.setText(viewModel.getTodo()!![position].long_rest.toString())
+            dialogBinding.cbPomoAutoRun.isChecked = viewModel.getTodo()!![position].autoStart
+            dialogBinding.cbNoLong.isChecked = viewModel.getTodo()!![position].noLong
         } else {   //"할 일 추가"
-            et_times.setText(sp.getInt("long_rest_pomo", 4).toString())
-            et_study.setText(sp.getInt("study_time", 25).toString())
-            et_rest.setText(sp.getInt("short_rest_time", 5).toString())
-            et_longRest.setText(sp.getInt("long_rest_time", 30).toString())
-            cb_pomo_auto_run.isChecked = sp.getBoolean("auto_timer", false)
-            cb_no_long_rest.isChecked = !(sp.getBoolean("use_long_rest", true))
+            dialogBinding.etTimes.setText(sp.getInt("long_rest_pomo", 4).toString())
+            dialogBinding.etStudy.setText(sp.getInt("study_time", 25).toString())
+            dialogBinding.etRest.setText(sp.getInt("short_rest_time", 5).toString())
+            dialogBinding.etLongRest.setText(sp.getInt("long_rest_time", 30).toString())
+            dialogBinding.cbPomoAutoRun.isChecked = sp.getBoolean("auto_timer", false)
+            dialogBinding.cbNoLong.isChecked = !(sp.getBoolean("use_long_rest", true))
         }
         //long rest time 사용여부에 따라 다이얼로그 일부분 수정 불가로 변경
-        noLongTimer(cb_no_long_rest.isChecked, et_longRest, et_times)
+        noLongTimer(dialogBinding)
 
-        cb_no_long_rest.setOnClickListener {
-            noLongTimer(cb_no_long_rest.isChecked, et_longRest, et_times)
+        dialogBinding.cbNoLong.setOnClickListener {
+            noLongTimer(dialogBinding)
         }
         /* editText 값 변경시 제한 걸기 */
-        et_study.addTextChangedListener(object : TextWatcher {
+        dialogBinding.etStudy.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val number = s.toString()
                 if (number != "") {
                     if (number.toInt() > 240) {
-                        et_study.setText("240")
+                        dialogBinding.etStudy.setText("240")
                     }
                 }
             }
         }
         )
-        et_rest.addTextChangedListener(object : TextWatcher {
+        dialogBinding.etRest.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val number = s.toString()
                 if (number != "") {
                     if (number.toInt() > 240) {
-                        et_rest.setText("240")
+                        dialogBinding.etRest.setText("240")
                     }
                 }
             }
         })
-        et_longRest.addTextChangedListener(object : TextWatcher {
+        dialogBinding.etLongRest.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val number = s.toString()
                 if (number != "") {
                     if (number.toInt() > 240) {
-                        et_longRest.setText("240")
+                        dialogBinding.etLongRest.setText("240")
                     }
                 }
             }
         })
-        et_times.addTextChangedListener(object : TextWatcher {
+        dialogBinding.etTimes.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val number = s.toString()
                 if (number != "") {
                     if (number.toInt() > 10) {
-                        et_times.setText("10")
+                        dialogBinding.etTimes.setText("10")
                     }
                 }
             }
@@ -214,7 +216,7 @@ class ToDoListFragment : Fragment() {
 
         val dialog = AlertDialog.Builder(context)
             .setTitle(title)
-            .setView(addDialogView)
+            .setView(dialogBinding.root)
             .setPositiveButton("확인", null)
             .setNegativeButton("취소", null)
             .create()
@@ -224,37 +226,36 @@ class ToDoListFragment : Fragment() {
             override fun onShow(dialog: DialogInterface?) {
                 (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                     //빈칸이 존재할 경우 toast 띄우기
-                    if (et_title.text.toString().equals("") || et_study.text.toString()
-                            .equals("") || et_rest.text.toString()
-                            .equals("") || (!cb_no_long_rest.isChecked && (et_longRest.text.toString()
-                            .equals(
-                                ""
-                            ) || et_times.text.toString().equals("")))
+                    if (dialogBinding.etTitle.text.toString()
+                            .equals("") || dialogBinding.etStudy.text.toString()
+                            .equals("") || dialogBinding.etRest.text.toString()
+                            .equals("") || (!dialogBinding.cbNoLong.isChecked && (dialogBinding.etLongRest.text.toString()
+                            .equals("") || dialogBinding.etTimes.text.toString().equals("")))
                     ) {
                         Toast.makeText(context, "빈 칸을 채워주세요.", Toast.LENGTH_SHORT).show()
                     } else {
                         when (title) {
                             "할 일 추가" -> {
                                 addToDo(
-                                    title = et_title.text.toString(),
-                                    study = et_study.text.toString(),
-                                    short_rest = et_rest.text.toString(),
-                                    long_rest = et_longRest.text.toString(),
-                                    pomo = et_times.text.toString(),
-                                    autoStart = cb_pomo_auto_run.isChecked,
-                                    noLong = cb_no_long_rest.isChecked
+                                    title = dialogBinding.etTitle.text.toString(),
+                                    study = dialogBinding.etStudy.text.toString(),
+                                    short_rest = dialogBinding.etRest.text.toString(),
+                                    long_rest = dialogBinding.etLongRest.text.toString(),
+                                    pomo = dialogBinding.etTimes.text.toString(),
+                                    autoStart = dialogBinding.cbPomoAutoRun.isChecked,
+                                    noLong = dialogBinding.cbNoLong.isChecked
                                 )
                             }
                             "할 일 수정" -> {
                                 editToDo(
                                     id = viewModel.getTodo()?.get(position)!!.id,
-                                    title = et_title.text.toString(),
-                                    pomo = et_times.text.toString(),
-                                    study = et_study.text.toString(),
-                                    short_rest = et_rest.text.toString(),
-                                    long_rest = et_longRest.text.toString(),
-                                    autoStart = cb_pomo_auto_run.isChecked,
-                                    noLong = cb_no_long_rest.isChecked
+                                    title = dialogBinding.etTitle.text.toString(),
+                                    study = dialogBinding.etStudy.text.toString(),
+                                    short_rest = dialogBinding.etRest.text.toString(),
+                                    long_rest = dialogBinding.etLongRest.text.toString(),
+                                    pomo = dialogBinding.etTimes.text.toString(),
+                                    autoStart = dialogBinding.cbPomoAutoRun.isChecked,
+                                    noLong = dialogBinding.cbNoLong.isChecked
                                 )
                             }
                         }
@@ -268,21 +269,21 @@ class ToDoListFragment : Fragment() {
     }
 
     // long timer를 사용하지 않을 경우 연관된 editText 수정불가로 변경
-    fun noLongTimer(isChecked: Boolean, et_longRest: EditText, et_times: EditText) {
-        if (isChecked) {
-            et_longRest.isFocusable = false
-            et_longRest.isClickable = false
-            et_longRest.setTextColor(Color.parseColor("#FFFFFF"))
-            et_times.isFocusable = false
-            et_times.isClickable = false
-            et_times.setTextColor(Color.parseColor("#FFFFFF"))
+    fun noLongTimer(dialogBinding: TodoItemDialogBinding) {
+        if (dialogBinding.cbNoLong.isChecked) {
+            dialogBinding.etLongRest.isFocusable = false
+            dialogBinding.etLongRest.isClickable = false
+            dialogBinding.etLongRest.setTextColor(Color.parseColor("#FFFFFF"))
+            dialogBinding.etTimes.isFocusable = false
+            dialogBinding.etTimes.isClickable = false
+            dialogBinding.etTimes.setTextColor(Color.parseColor("#FFFFFF"))
         } else {
-            et_longRest.isFocusableInTouchMode = true
-            et_longRest.isFocusable = true
-            et_longRest.setTextColor(Color.parseColor("#000000"))
-            et_times.isFocusableInTouchMode = true
-            et_times.isFocusable = true
-            et_times.setTextColor(Color.parseColor("#000000"))
+            dialogBinding.etLongRest.isFocusableInTouchMode = true
+            dialogBinding.etLongRest.isFocusable = true
+            dialogBinding.etLongRest.setTextColor(Color.parseColor("#000000"))
+            dialogBinding.etTimes.isFocusableInTouchMode = true
+            dialogBinding.etTimes.isFocusable = true
+            dialogBinding.etTimes.setTextColor(Color.parseColor("#000000"))
         }
     }
 
@@ -364,19 +365,16 @@ class TodoAdapter(
         this.itemClickListener = listener
     }
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val todoText: TextView
-
+    inner class ViewHolder(val itemViewBinding: TodoItemViewBinding) : RecyclerView.ViewHolder(itemViewBinding.root) {
         init {
-            todoText = itemView.findViewById(R.id.tv_todo)
             //item title 눌렀을 때 타이머로 이동
-            todoText.setOnClickListener {
+            itemViewBinding.tvTodo.setOnClickListener {
                 itemClickListener.onItemTitleClick(adapterPosition)
             }
 
             //item 버튼 눌렀을 때 수정, 삭제 선택 다이어로그 띄우기
             // 수정 선택 시 - 수정 다이어로그
-            itemView.findViewById<Button>(R.id.bt_modify).setOnClickListener {
+            itemViewBinding.btModify.setOnClickListener {
                 itemClickListener.onItemButtonClick(adapterPosition)
             }
         }
@@ -384,7 +382,7 @@ class TodoAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(context).inflate(R.layout.todo_item_view, parent, false)
-        return ViewHolder(view)
+        return ViewHolder(TodoItemViewBinding.bind(view))
     }
 
     override fun getItemCount(): Int {
@@ -392,7 +390,7 @@ class TodoAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.todoText.setText(todoList.get(position).title)
+        holder.itemViewBinding.tvTodo.setText(todoList.get(position).title)
     }
 
     //live data를 이용한 데이터 갱신을 위해 구현 - 이 함수 호출하면 데이터 바뀌도록.
