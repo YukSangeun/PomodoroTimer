@@ -3,7 +3,7 @@
     package="com.yukse.pomodorotimer">
 
     <!-- Vibrate 사용 권한-->
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -11,7 +11,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.PomodoroTimer">
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity android:name=".SettingActivity"></activity>
         <activity android:name=".PomoTimerActivity" />
         <activity android:name=".MainActivity">

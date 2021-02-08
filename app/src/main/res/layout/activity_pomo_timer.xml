@@ -1,56 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".PomoTimerActivity">
 
-    <TextView
-        android:id="@+id/tv_title"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/timer_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:layout_marginBottom="10dp"
-        android:gravity="center_horizontal"
-        android:text="학습"
-        android:textSize="35dp"
-        android:textStyle="bold" />
+        android:layout_height="?attr/actionBarSize"
+        android:background="@null">
 
-    <TextView
-        android:id="@+id/tv_pomoTimes"
+        <TextView
+            android:id="@+id/timer_toolbar_title"
+            style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingRight="?attr/actionBarSize"
+            android:text="title" />
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_title"
-        android:layout_marginBottom="30dp"
-        android:gravity="center_horizontal"
-        android:text="1 / 4"
-        android:textSize="20dp" />
+        android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/tv_timer_time"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
-        android:gravity="center"
-        android:text="00 : 00 : 00"
-        android:textColor="@color/pink"
-        android:textSize="70dp" />
+        <TextView
+            android:id="@+id/tv_pomoTimes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:gravity="center_horizontal"
+            android:text="1 / 4"
+            android:textSize="20dp" />
 
-
-    <Button
-        android:id="@+id/bt_start"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="40dp"
-        android:backgroundTint="@color/green"
-        android:text="시작"
-        android:textColor="#000000"
-        android:textSize="30dp" />
+        <TextView
+            android:id="@+id/tv_timer_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:text="00 : 00 : 00"
+            android:textColor="@color/pink"
+            android:textSize="70dp" />
 
 
-</RelativeLayout>
+        <Button
+            android:id="@+id/bt_start"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="40dp"
+            android:backgroundTint="@color/green"
+            android:text="시작"
+            android:textColor="#000000"
+            android:textSize="30dp" />
+    </RelativeLayout>
+
+</LinearLayout>

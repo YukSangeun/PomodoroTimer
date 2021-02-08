@@ -3,15 +3,14 @@ package com.yukse.pomodorotimer
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -33,6 +32,7 @@ class ToDoListFragment : Fragment() {
     }
 
     private var _binding: TodolistFragmentBinding? = null
+
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
@@ -56,6 +56,9 @@ class ToDoListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         Log.d("life_cycle", "onCreateView")
+
+        //toolbar 의 menu 설정 가능하도록 설정
+        setHasOptionsMenu(true)
 
         //프래그먼트가 인터페이스를 처음으로 그릴 때 호출된다.
         // inflater : 뷰를 그려주는 역할
@@ -92,16 +95,20 @@ class ToDoListFragment : Fragment() {
             this.layoutManager = LinearLayoutManager(context)
         }
 
-
-        //add버튼 눌렀을 때 아이템 추가 - 추가 다이어로그 띄우기
-        binding.btAdd.setOnClickListener {
-            itemInfoEditDialog("할 일 추가", 0, context)
-        }
-
         // live data를 통한 데이터 관찰 하여 UI 업데이트
         viewModel.getLiveData().observe(viewLifecycleOwner, Observer {
             (binding.rvTodolist.adapter as TodoAdapter).setData(it)
         })
+    }
+
+    // menu 선택별 action 지정
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_add -> {
+                itemInfoEditDialog("할 일 추가", 0, context)
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onDestroyView() {
@@ -365,7 +372,8 @@ class TodoAdapter(
         this.itemClickListener = listener
     }
 
-    inner class ViewHolder(val itemViewBinding: TodoItemViewBinding) : RecyclerView.ViewHolder(itemViewBinding.root) {
+    inner class ViewHolder(val itemViewBinding: TodoItemViewBinding) :
+        RecyclerView.ViewHolder(itemViewBinding.root) {
         init {
             //item title 눌렀을 때 타이머로 이동
             itemViewBinding.tvTodo.setOnClickListener {

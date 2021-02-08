@@ -13,6 +13,7 @@ import android.net.Uri
 import android.os.*
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
+import android.view.MenuItem
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
@@ -67,6 +68,14 @@ class PomoTimerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityPomoTimerBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // tool bar
+        setSupportActionBar(binding.timerToolbar)
+        // 툴바에 홈 버튼 활성화
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        // 기존 툴바 타이틀 사용안함
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+
         //환경설정 가져오기
         sp = PreferenceManager.getDefaultSharedPreferences(this@PomoTimerActivity)
         //화면 켜진 상태 유지
@@ -129,6 +138,15 @@ class PomoTimerActivity : AppCompatActivity() {
                     startCountDownTimer()
             })
             .show()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun createNotification() {
@@ -214,7 +232,7 @@ class PomoTimerActivity : AppCompatActivity() {
 
                     if (h > 0) {
                         updateNotification(
-                            binding.tvTitle.text.toString(),
+                            binding.timerToolbarTitle.text.toString(),
                             "${df.format(h)} : ${df.format(m)} : ${df.format(s)}"
                         )
                         binding.tvTimerTime.setText(
@@ -225,7 +243,7 @@ class PomoTimerActivity : AppCompatActivity() {
                     } else {
                         binding.tvTimerTime.setText("${df.format(m)} : ${df.format(s)}")
                         updateNotification(
-                            binding.tvTitle.text.toString(),
+                            binding.timerToolbarTitle.text.toString(),
                             "${df.format(m)} : ${df.format(s)}"
                         )
                     }
@@ -325,11 +343,14 @@ class PomoTimerActivity : AppCompatActivity() {
 
     fun setUI() {
         if (currentTimer == CurrentTimer.STUDY) {
-            binding.tvTitle.setText("집중")
+            binding.timerToolbarTitle.setText("집중")
+            //   binding.tvTitle.setText("집중")
         } else if (currentTimer == CurrentTimer.SHORTREST) {
-            binding.tvTitle.setText("휴식")
+            binding.timerToolbarTitle.setText("휴식")
+            //   binding.tvTitle.setText("휴식")
         } else {
-            binding.tvTitle.setText("긴 휴식")
+            binding.timerToolbarTitle.setText("대휴식")
+            //    binding.tvTitle.setText("긴 휴식")
         }
 
         val s = (mMillisInFuture / PERIOD) % 60

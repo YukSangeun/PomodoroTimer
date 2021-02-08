@@ -3,6 +3,8 @@ package com.yukse.pomodorotimer
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -46,6 +48,8 @@ class MainActivity : AppCompatActivity(), ToDoListFragment.OnDataPassLister {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        // tool bar
+        setSupportActionBar(binding.mainToolbar)
 
         //view pager2
         val pagerAdapter = FragmentPagerAdapter(this, 2)
@@ -56,6 +60,24 @@ class MainActivity : AppCompatActivity(), ToDoListFragment.OnDataPassLister {
             this.currentItem = 0
         }
 
+    }
+
+    //tool bar 에 menu 표시
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_toolbar_action, menu)
+
+        return true
+    }
+
+    // menu 선택별 action 지정
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_settings -> {
+                val setting_intent = Intent(this@MainActivity, SettingActivity::class.java)
+                startActivity(setting_intent)
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onBackPressed() {

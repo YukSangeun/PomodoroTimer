@@ -1,15 +1,8 @@
 <resources>
     <string name="app_name">Pomodoro Timer</string>
-    <!-- 환경설정에서 소리 선택시 표시할 내용 -->
-    <string-array name="alarm_sound">
-        <item>딩가딩</item>
-        <item>휴식시간입니다.</item>
-        <item>집중시간입니다.</item>
-    </string-array>
-    <!-- 환경설정에서 선택한 노래의 실제 값 -->
-    <string-array name="alarm_sound_value">
-        <item>딩가딩</item>
-        <item>휴식시간입니다.</item>
-        <item>집중시간입니다.</item>
-    </string-array>
+    <!-- tool bar 액션 -->
+    <string name="action_add">Add</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_back">Back</string>
+
 </resources>
