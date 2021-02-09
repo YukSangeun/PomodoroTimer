@@ -3,38 +3,29 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="10dp">
+    android:padding="5dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@drawable/todoitem"
+        android:padding="15dp">
 
         <TextView
             android:id="@+id/tv_todo"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:layout_toLeftOf="@id/bt_modify"
             android:text="오늘 해야할 일1"
             android:textSize="20dp" />
 
         <Button
             android:id="@+id/bt_modify"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:background="@drawable/ic_baseline_timer_24"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"/>
-
-
-
     </RelativeLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/green" />
-
-
 </LinearLayout>
