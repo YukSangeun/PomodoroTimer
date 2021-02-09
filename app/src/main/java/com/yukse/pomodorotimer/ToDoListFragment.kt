@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.yukse.pomodorotimer.database.ToDoEntity
 import com.yukse.pomodorotimer.database.ToDoViewModel
+import com.yukse.pomodorotimer.databinding.TodoItemActionDialogBinding
 import com.yukse.pomodorotimer.databinding.TodoItemDialogBinding
 import com.yukse.pomodorotimer.databinding.TodoItemViewBinding
 import com.yukse.pomodorotimer.databinding.TodolistFragmentBinding
@@ -124,20 +125,31 @@ class ToDoListFragment : Fragment() {
     ) {
         val eord_list = arrayOf("수정", "삭제")
 
-        AlertDialog.Builder(context)
-            .setTitle(viewModel.getTodo()!![position].title)
-            .setItems(eord_list, DialogInterface.OnClickListener { dialog, which ->
-                when (which) {
-                    0 -> {
-                        itemInfoEditDialog("할 일 수정", position, context)
-                    }
-                    1 -> {
-                        //삭제
-                        viewModel.deleteTodo(position)
-                    }
+        val dialogBinding = TodoItemActionDialogBinding.inflate(LayoutInflater.from(context))
+
+        dialogBinding.dialogTitle.setText(viewModel.getTodo()!![position].title)
+        dialogBinding.lvSelectAction.adapter =
+            ArrayAdapter<String>(requireContext(), android.R.layout.simple_list_item_1, eord_list)
+
+        val dialog = AlertDialog.Builder(context)
+            .setView(dialogBinding.root)
+            .create()
+
+        dialogBinding.lvSelectAction.setOnItemClickListener { parent, view, position, id ->
+            when (position) {
+                0 -> {
+                    itemInfoEditDialog("할 일 수정", position, context)
                 }
-            })
-            .show()
+                1 -> {
+                    //삭제
+                    viewModel.deleteTodo(position)
+                }
+            }
+            dialog.dismiss()
+        }
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.show()
     }
 
     //아이템 수정 or 추가 다이얼로그 띄우기
@@ -148,6 +160,7 @@ class ToDoListFragment : Fragment() {
     ) {
         val dialogBinding = TodoItemDialogBinding.inflate(LayoutInflater.from(context))
 
+        dialogBinding.dialogTitle.setText(title)
         //기존 값 불러와 화면에 표시
         if (title.equals("할 일 수정")) {
             dialogBinding.etTitle.setText(viewModel.getTodo()!![position].title)
@@ -223,16 +236,16 @@ class ToDoListFragment : Fragment() {
         })
 
         val dialog = AlertDialog.Builder(context)
-            .setTitle(title)
             .setView(dialogBinding.root)
-            .setPositiveButton("확인", null)
-            .setNegativeButton("취소", null)
             .create()
         //dialog show시 이벤트
         //dialog의 버튼 listener 바꾸기. 클릭시 자동을 dismiss()호출 방지
         dialog.setOnShowListener(object : DialogInterface.OnShowListener {
             override fun onShow(dialog: DialogInterface?) {
-                (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                dialogBinding.btCancle.setOnClickListener {
+                    dialog?.dismiss()
+                }
+                dialogBinding.btOk.setOnClickListener {
                     //빈칸이 존재할 경우 toast 띄우기
                     if (dialogBinding.etTitle.text.toString()
                             .equals("") || dialogBinding.etStudy.text.toString()
@@ -267,7 +280,7 @@ class ToDoListFragment : Fragment() {
                                 )
                             }
                         }
-                        dialog.dismiss()
+                        dialog?.dismiss()
                     }
                 }
             }
