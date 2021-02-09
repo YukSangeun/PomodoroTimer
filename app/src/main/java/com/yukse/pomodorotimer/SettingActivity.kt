@@ -18,6 +18,7 @@ class SettingActivity : AppCompatActivity() {
         setSupportActionBar(binding.settingToolbar)
         // 툴바에 홈 버튼 활성화
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setTitle(R.string.settings_name)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

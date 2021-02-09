@@ -1,8 +1,12 @@
 <resources>
     <string name="app_name">Pomodoro Timer</string>
-    <!-- tool bar 액션 -->
+    <!-- tool bar menu액션 -->
     <string name="action_add">Add</string>
     <string name="action_settings">Settings</string>
-    <string name="action_back">Back</string>
+    <!-- tool bar title -->
+    <string name="timer_study_name">집중</string>
+    <string name="timer_rest_name">휴식</string>
+    <string name="timer_long_rest_name">대휴식</string>
+    <string name="settings_name">설정</string>
 
 </resources>

@@ -343,13 +343,13 @@ class PomoTimerActivity : AppCompatActivity() {
 
     fun setUI() {
         if (currentTimer == CurrentTimer.STUDY) {
-            binding.timerToolbarTitle.setText("집중")
+            binding.timerToolbarTitle.setText(R.string.timer_study_name)
             //   binding.tvTitle.setText("집중")
         } else if (currentTimer == CurrentTimer.SHORTREST) {
-            binding.timerToolbarTitle.setText("휴식")
+            binding.timerToolbarTitle.setText(R.string.timer_rest_name)
             //   binding.tvTitle.setText("휴식")
         } else {
-            binding.timerToolbarTitle.setText("대휴식")
+            binding.timerToolbarTitle.setText(R.string.timer_long_rest_name)
             //    binding.tvTitle.setText("긴 휴식")
         }
 
