@@ -100,7 +100,7 @@ class FragmentPagerAdapter(
     override fun createFragment(position: Int): Fragment {
         when (position) {
             0 -> {
-                return TotalTimeFragment()
+                return MainFragment()
             }
             else -> {
                 return ToDoListFragment()

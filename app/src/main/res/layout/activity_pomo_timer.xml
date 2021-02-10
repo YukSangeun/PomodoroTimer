@@ -26,16 +26,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <TextView
-            android:id="@+id/tv_pomoTimes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:gravity="center_horizontal"
-            android:text="1 / 4"
-            android:textSize="20dp" />
+        android:layout_height="500dp">
 
         <TextView
             android:id="@+id/tv_timer_time"
@@ -47,18 +38,25 @@
             android:textColor="@color/pink"
             android:textSize="70dp" />
 
-
-        <Button
-            android:id="@+id/bt_start"
-            android:layout_width="150dp"
+        <TextView
+            android:id="@+id/tv_pomoTimes"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_margin="40dp"
-            android:backgroundTint="@color/green"
-            android:text="시작"
-            android:textColor="#000000"
-            android:textSize="30dp" />
+            android:layout_below="@id/tv_timer_time"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:text="1 / 4"
+            android:textSize="17dp" />
     </RelativeLayout>
+
+    <Button
+        android:id="@+id/bt_start"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="center"
+        android:layout_margin="40dp"
+        android:background="@drawable/ic_baseline_play_circle_outline_24"
+        android:backgroundTint="@color/pink" />
 
 </LinearLayout>

@@ -6,7 +6,7 @@
     <!-- tool bar title -->
     <string name="timer_study_name">집중</string>
     <string name="timer_rest_name">휴식</string>
-    <string name="timer_long_rest_name">대휴식</string>
+    <string name="timer_long_rest_name">긴휴식</string>
     <string name="settings_name">설정</string>
 
 </resources>

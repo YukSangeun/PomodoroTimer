@@ -1,16 +1,20 @@
 package com.yukse.pomodorotimer
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.Button
 import androidx.fragment.app.Fragment
-import com.yukse.pomodorotimer.databinding.TotaltimeFragmentBinding
+import androidx.preference.PreferenceManager
+import com.yukse.pomodorotimer.databinding.MainFragmentBinding
 
-class TotalTimeFragment : Fragment() {
+class MainFragment : Fragment() {
 
-    private var _binding: TotaltimeFragmentBinding? = null
+    private var _binding: MainFragmentBinding? = null
+    private lateinit var sp: SharedPreferences
+
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -28,12 +32,14 @@ class TotalTimeFragment : Fragment() {
         setHasOptionsMenu(true)
 
         //프래그먼트가 인터페이스를 처음으로 그릴 때 호출된다.
-        _binding = TotaltimeFragmentBinding.inflate(inflater, container, false)
+        _binding = MainFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        sp = PreferenceManager.getDefaultSharedPreferences(context)
 
         binding.btStart.setOnClickListener {
             val timer_intent = Intent(context, PomoTimerActivity::class.java)
@@ -45,6 +51,20 @@ class TotalTimeFragment : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         menu.setGroupVisible(R.id.action_add_gorup, false)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        binding.tvStudy.setText(sp.getInt("study_time", 25).toString())
+        binding.tvRest.setText(sp.getInt("short_rest_time", 5).toString())
+        if(sp.getBoolean("use_long_rest", true)) {
+            binding.tvLongRest.setText(sp.getInt("long_rest_time", 30).toString())
+            binding.tvPomo.setText(sp.getInt("long_rest_pomo", 4).toString())
+        }
+        else{
+            binding.tvLongRest.setText("-")
+            binding.tvPomo.setText("-")
+        }
     }
 
     override fun onDestroyView() {

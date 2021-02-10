@@ -34,6 +34,11 @@ class PomoTimerActivity : AppCompatActivity() {
         LONGREST
     }
 
+    private enum class CurrentButton{
+        PLAY,
+        PAUSE
+    }
+
     //binding
     private lateinit var binding: ActivityPomoTimerBinding
 
@@ -42,6 +47,7 @@ class PomoTimerActivity : AppCompatActivity() {
     private var mMillisInFuture: Long = 0
     private var studyCnt: Int = 1
     private var currentTimer: CurrentTimer = CurrentTimer.STUDY
+    private var currentButton: CurrentButton = CurrentButton.PAUSE
 
     //환경설정 변수
     private lateinit var sp: SharedPreferences
@@ -134,7 +140,7 @@ class PomoTimerActivity : AppCompatActivity() {
                 super.onBackPressed()
             })
             .setNegativeButton("취소", DialogInterface.OnClickListener { dialog, which ->
-                if (binding.btStart.text.equals("중지"))
+                if(currentButton == CurrentButton.PLAY)
                     startCountDownTimer()
             })
             .show()
@@ -208,7 +214,9 @@ class PomoTimerActivity : AppCompatActivity() {
             object : CountDownTimer(PERIOD * 1, PERIOD) {
                 override fun onFinish() {
                     startCountDownTimer()
-                    binding.btStart.setText("중지")
+                    currentButton = CurrentButton.PLAY
+                    binding.btStart.setBackgroundResource(R.drawable.ic_baseline_pause_circle_outline_24)
+                    //binding.btStart.setText("중지")
                 }
 
                 override fun onTick(millisUntilFinished: Long) {}
@@ -333,7 +341,9 @@ class PomoTimerActivity : AppCompatActivity() {
 
         //UI변경
         setUI()
-        binding.btStart.setText("시작")
+        currentButton = CurrentButton.PAUSE
+        binding.btStart.setBackgroundResource(R.drawable.ic_baseline_play_circle_outline_24)
+        //binding.btStart.setText("시작")
 
         //자동일 경우 바로 전환
         if (auto) {
@@ -370,12 +380,16 @@ class PomoTimerActivity : AppCompatActivity() {
     }
 
     fun startButtonClick() {
-        if (binding.btStart.text.equals("시작")) {
+        if (currentButton == CurrentButton.PAUSE) {
             startCountDownTimer()
-            binding.btStart.setText("중지")
+            binding.btStart.setBackgroundResource(R.drawable.ic_baseline_pause_circle_outline_24)
+            currentButton = CurrentButton.PLAY
+            //binding.btStart.setText("중지")
         } else {
             pauseCountDownTimer()
-            binding.btStart.setText("시작")
+            binding.btStart.setBackgroundResource(R.drawable.ic_baseline_play_circle_outline_24)
+            currentButton = CurrentButton.PAUSE
+           // binding.btStart.setText("시작")
 
         }
     }
