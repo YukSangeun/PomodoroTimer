@@ -3,7 +3,6 @@ package com.yukse.pomodorotimer
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
-import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -98,8 +97,9 @@ class ToDoListFragment : Fragment() {
         }
 
         // live data를 통한 데이터 관찰 하여 UI 업데이트
-        viewModel.getLiveData().observe(viewLifecycleOwner, Observer {
+        viewModel.getToDoLiveData().observe(viewLifecycleOwner, Observer {
             (binding.rvTodolist.adapter as TodoAdapter).setData(it)
+            Log.d("txx", "" + viewModel.getToDoLiveData().value)
         })
     }
 
@@ -269,7 +269,6 @@ class ToDoListFragment : Fragment() {
                             }
                             "할 일 수정" -> {
                                 editToDo(
-                                    id = viewModel.getTodo()?.get(position)!!.id,
                                     title = dialogBinding.etTitle.text.toString(),
                                     study = dialogBinding.etStudy.text.toString(),
                                     short_rest = dialogBinding.etRest.text.toString(),
@@ -337,7 +336,6 @@ class ToDoListFragment : Fragment() {
     }
 
     fun editToDo(
-        id: Int,
         title: String,
         study: String,
         short_rest: String,
@@ -353,7 +351,6 @@ class ToDoListFragment : Fragment() {
 
         viewModel.editTodo(
             ToDoEntity(
-                id = id,
                 title = title,
                 pomo = pomo_,
                 study = study.toLong(),

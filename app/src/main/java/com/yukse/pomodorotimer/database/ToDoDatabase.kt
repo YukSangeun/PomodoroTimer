@@ -4,12 +4,30 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
+
+//버전 업그레이드 - group 테이블 추가, 기존 테이블에 group 컬럼 추가
+val MIGRATION_1_2: Migration = object : Migration(1, 2) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            "CREATE TABLE " + DatabaseContract.GROUP_TABLE_NAME +
+                    " (id INTEGER not null primary key autoincrement, " +
+                    DatabaseContract.GROUP + " TEXT  not null)"
+        )
+        database.execSQL(
+            "ALTER TABLE " + DatabaseContract.ITEM_TABLE_NAME +
+                    " ADD COLUMN " + DatabaseContract.GROUP + " INTEGER not null default 1 references " +
+                    DatabaseContract.GROUP_TABLE_NAME + "(id) on delete cascade"
+        )
+    }
+}
 
 // 데이터베이스의 holder를 구성하며 지속적인 관계형 데이터의 기본 연결을 위한 access point 역할을 한다
 // database annotation의 version: 신규 변경사항이 생길 경우 version을 올려준다
 // 또한, 이전 버전과 달라진 점들에 대해 어떻게 변경사항을 집어넣을 것인지 migration 클래스를 작성해 적용해야 한다.
 // exportSchema=false 해당 옵션을 true로 하게 되면 빌드시에 테이블 생성에 관련된 쿼리 및 Table Column 정보를 json 파일로 생성하여 프로젝트 내에 생성
-@Database(entities = [ToDoEntity::class], version = 1, exportSchema = false)
+@Database(entities = [ToDoEntity::class, GroupEntity::class], version = 2, exportSchema = false)
 abstract class ToDoDatabase : RoomDatabase() {
     abstract fun todoDao(): ToDoDao
 
@@ -27,6 +45,7 @@ abstract class ToDoDatabase : RoomDatabase() {
                     ToDoDatabase::class.java,
                     DatabaseContract.DB_NAME.DATABASE_NAME
                 )
+                    .addMigrations(MIGRATION_1_2)
                     .allowMainThreadQueries()
                     .build()
             }

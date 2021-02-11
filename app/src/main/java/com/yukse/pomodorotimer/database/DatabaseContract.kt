@@ -12,7 +12,9 @@ class DatabaseContract {
 
     //table content 정의하는 이너클래스
     companion object ToDoEntry : BaseColumns {
-        const val TABLE_NAME: String = "todo"
+        const val ITEM_TABLE_NAME: String = "todo"
+        const val GROUP_TABLE_NAME: String = "todogroup"
+        const val GROUP: String = "column_group"
         const val TITLE: String = "column_title"
         const val STUDYTIME: String = "column_study"
         const val SHORTRESTTIME: String = "column_short_rest"

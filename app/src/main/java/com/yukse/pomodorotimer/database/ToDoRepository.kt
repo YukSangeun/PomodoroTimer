@@ -8,22 +8,42 @@ import androidx.lifecycle.LiveData
 class ToDoRepository(private val toDoDao: ToDoDao) {
 
     val allToDoList: LiveData<List<ToDoEntity>> = getAllToDo()
+    val allGoup: LiveData<List<GroupEntity>> = getAllGroup()
 
     fun getAllToDo(): LiveData<List<ToDoEntity>> {
-        return toDoDao.getAll()
+        return toDoDao.getAllToDo()
+    }
+
+    fun getAllGroup(): LiveData<List<GroupEntity>>{
+        return toDoDao.getAllGroup()
+    }
+
+    fun getToDoInGroup(group_id: Int): LiveData<List<ToDoEntity>>{
+        return toDoDao.getToDoInGroup(group_id)
     }
 
     suspend fun insertToDo(toDoEntity: ToDoEntity) {
         toDoDao.insertToDO(toDoEntity)
     }
 
+    suspend fun insertGroup(groupEntity: GroupEntity){
+        toDoDao.insertGroup(groupEntity)
+    }
+
     suspend fun updateToDo(toDoEntity: ToDoEntity) {
-        val ret = toDoDao.updateToDo(toDoEntity)
+        toDoDao.updateToDo(toDoEntity)
+    }
+
+    suspend fun updateGroup(groupEntity: GroupEntity){
+        toDoDao.updateGroup(groupEntity)
     }
 
     suspend fun deleteToDo(toDoEntity: ToDoEntity) {
         toDoDao.deleteToDo(toDoEntity)
     }
 
+    suspend fun deleteGroup(groupEntity: GroupEntity){
+        toDoDao.deleteGroup(groupEntity)
+    }
 
 }
