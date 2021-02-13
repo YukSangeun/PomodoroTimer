@@ -1,6 +1,7 @@
 package com.yukse.pomodorotimer
 
 import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.SharedPreferences
@@ -18,12 +19,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.yukse.pomodorotimer.database.GroupEntity
 import com.yukse.pomodorotimer.database.ToDoEntity
 import com.yukse.pomodorotimer.database.ToDoViewModel
-import com.yukse.pomodorotimer.databinding.TodoItemActionDialogBinding
-import com.yukse.pomodorotimer.databinding.TodoItemDialogBinding
-import com.yukse.pomodorotimer.databinding.TodoItemViewBinding
-import com.yukse.pomodorotimer.databinding.TodolistFragmentBinding
+import com.yukse.pomodorotimer.databinding.*
 
 class ToDoListFragment : Fragment() {
     //아이템 클릭 후 타이머로 이동할 때 값 전달할 interface
@@ -42,6 +41,9 @@ class ToDoListFragment : Fragment() {
 
     //환경설정 변수
     private lateinit var sp: SharedPreferences
+
+    //현재 화면에 나타나는 그룹
+    private var current_group: Int = 0
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -83,12 +85,12 @@ class ToDoListFragment : Fragment() {
             //OnItemClickListener 인터페이스를 통해 전달받는 함수
             // 1. 아이템  삭제/수정 다이얼로그 띄우기
             override fun onItemButtonClick(position: Int) {
-                itemEditORDeleteDialog(position, context)
+                itemEditORDeleteDialog(position)
             }
 
             // 2. 타이머로 값 전달 후 이동
             override fun onItemTitleClick(position: Int) {
-                dataPassListener.onDataPass(viewModel.getTodo()!![position])
+                dataPassListener.onDataPass(viewModel.getToDoLiveDataInGroup().value!!.get(position))
             }
         })
         with(binding.rvTodolist) {
@@ -96,10 +98,31 @@ class ToDoListFragment : Fragment() {
             this.layoutManager = LinearLayoutManager(context)
         }
 
-        // live data를 통한 데이터 관찰 하여 UI 업데이트
-        viewModel.getToDoLiveData().observe(viewLifecycleOwner, Observer {
+        binding.tvGroup.setOnClickListener {
+            groupListDialog()
+        }
+
+        //========== live data observer 설정 ====================
+        viewModel.getFirstRowGroup().observe(viewLifecycleOwner, Observer {
+            // current_group이 null인 경우(초기 화면 생성시)만 변경하도록
+            if (current_group == 0) {
+                current_group = it.id
+                Log.d("txx", "current_group: " + current_group)
+                binding.tvGroup.setText(it.group)
+            }
+        })
+        //현재 그룹에 있는 list를 UI에 표시
+        viewModel.getToDoLiveDataInGroup().observe(viewLifecycleOwner, Observer {
+            Log.d("txx", "리스트 표시: " + it)
             (binding.rvTodolist.adapter as TodoAdapter).setData(it)
-            Log.d("txx", "" + viewModel.getToDoLiveData().value)
+        })
+        // 데이터 변경사항 있을 때마다 UI 업데이트
+        viewModel.getAllToDoLiveData().observe(viewLifecycleOwner, Observer {
+            viewModel.setToDoLiveDataInGroup(current_group)
+            Log.d("txx", "todo live data: " + viewModel.getAllTodo())
+        })
+        viewModel.getAllGroupLiveData().observe(viewLifecycleOwner, Observer {
+            Log.d("txx", "group: " + it)
         })
     }
 
@@ -118,16 +141,66 @@ class ToDoListFragment : Fragment() {
         _binding = null
     }
 
+    //그룹 리스트 다이얼로그 띄우기
+    fun groupListDialog() {
+        val dialogBinding = GroupDialogBinding.inflate(LayoutInflater.from(context))
+        val dialog = AlertDialog.Builder(context)
+            .setView(dialogBinding.root)
+            .create()
+
+        dialogBinding.dialogTitle.setText("그룹 목록")
+        viewModel.getAllGroupNameData().observe(viewLifecycleOwner, Observer {
+            Log.d("txx", "group name" + it)
+            dialogBinding.lvSelectAction.adapter =
+                ArrayAdapter<String>(requireContext(), android.R.layout.simple_list_item_1, it)
+        })
+        dialogBinding.btGroupAdd.setOnClickListener {
+            val et_group_name = EditText(context)
+            val addDialog = AlertDialog.Builder(context)
+                .setTitle("그룹 추가")
+                .setView(et_group_name)
+                .setPositiveButton("확인", null)
+                .setNegativeButton("취소", null)
+                .create()
+
+            addDialog.setOnShowListener(object : DialogInterface.OnShowListener {
+                override fun onShow(dialog: DialogInterface?) {
+                    addDialog.getButton(Dialog.BUTTON_POSITIVE).setOnClickListener {
+                        if (et_group_name.text.isNullOrEmpty()) {
+                            Toast.makeText(context, "빈 칸을 채워주세요.", Toast.LENGTH_SHORT).show()
+                        } else{
+                            viewModel.addGroup(GroupEntity(group = et_group_name.text.toString()))
+                            addDialog.dismiss()
+                        }
+                    }
+                }
+            })
+            addDialog.show()
+        }
+        dialogBinding.lvSelectAction.setOnItemClickListener { parent, view, position, id ->
+            current_group = viewModel.getAllGroup()!![position].id
+            Log.d("txx", "click " + current_group)
+            binding.tvGroup.setText(viewModel.getAllGroup()?.get(position)?.group)
+            viewModel.setToDoLiveDataInGroup(current_group)
+            dialog.dismiss()
+        }
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.show()
+    }
+
     //수정 or 삭제 다이얼로그 띄우기
     fun itemEditORDeleteDialog(
-        position: Int,
-        context: Context?
+        item_pos: Int
     ) {
+        val item_id = viewModel.getToDoLiveDataInGroup().value!!.get(item_pos).id
+        Log.d("txx", "item position: " + item_pos)
+        Log.d("txx", "item id: " + item_id)
         val eord_list = arrayOf("수정", "삭제")
 
         val dialogBinding = TodoItemActionDialogBinding.inflate(LayoutInflater.from(context))
 
-        dialogBinding.dialogTitle.setText(viewModel.getTodo()!![position].title)
+        dialogBinding.dialogTitle.setText(viewModel.getToDoLiveDataInGroup().value!!.get(item_pos).title)
         dialogBinding.lvSelectAction.adapter =
             ArrayAdapter<String>(requireContext(), android.R.layout.simple_list_item_1, eord_list)
 
@@ -138,11 +211,11 @@ class ToDoListFragment : Fragment() {
         dialogBinding.lvSelectAction.setOnItemClickListener { parent, view, position, id ->
             when (position) {
                 0 -> {
-                    itemInfoEditDialog("할 일 수정", position, context)
+                    itemInfoEditDialog("할 일 수정", item_pos, context)
                 }
                 1 -> {
                     //삭제
-                    viewModel.deleteTodo(position)
+                    viewModel.deleteTodo(viewModel.getToDoLiveDataInGroup().value?.get(item_pos))
                 }
             }
             dialog.dismiss()
@@ -163,13 +236,15 @@ class ToDoListFragment : Fragment() {
         dialogBinding.dialogTitle.setText(title)
         //기존 값 불러와 화면에 표시
         if (title.equals("할 일 수정")) {
-            dialogBinding.etTitle.setText(viewModel.getTodo()!![position].title)
-            dialogBinding.etTimes.setText(viewModel.getTodo()!![position].pomo.toString())
-            dialogBinding.etStudy.setText(viewModel.getTodo()!![position].study.toString())
-            dialogBinding.etRest.setText(viewModel.getTodo()!![position].short_rest.toString())
-            dialogBinding.etLongRest.setText(viewModel.getTodo()!![position].long_rest.toString())
-            dialogBinding.cbPomoAutoRun.isChecked = viewModel.getTodo()!![position].autoStart
-            dialogBinding.cbNoLong.isChecked = viewModel.getTodo()!![position].noLong
+            dialogBinding.etTitle.setText(viewModel.getToDoLiveDataInGroup().value!!.get(position).title)
+            dialogBinding.etTimes.setText(viewModel.getToDoLiveDataInGroup().value!!.get(position).pomo.toString())
+            dialogBinding.etStudy.setText(viewModel.getToDoLiveDataInGroup().value!!.get(position).study.toString())
+            dialogBinding.etRest.setText(viewModel.getToDoLiveDataInGroup().value!!.get(position).short_rest.toString())
+            dialogBinding.etLongRest.setText(viewModel.getToDoLiveDataInGroup().value!!.get(position).long_rest.toString())
+            dialogBinding.cbPomoAutoRun.isChecked =
+                viewModel.getToDoLiveDataInGroup().value!!.get(position).autoStart
+            dialogBinding.cbNoLong.isChecked =
+                viewModel.getToDoLiveDataInGroup().value!!.get(position).noLong
         } else {   //"할 일 추가"
             dialogBinding.etTimes.setText(sp.getInt("long_rest_pomo", 4).toString())
             dialogBinding.etStudy.setText(sp.getInt("study_time", 25).toString())
@@ -269,6 +344,7 @@ class ToDoListFragment : Fragment() {
                             }
                             "할 일 수정" -> {
                                 editToDo(
+                                    id = viewModel.getToDoLiveDataInGroup().value!!.get(position).id,
                                     title = dialogBinding.etTitle.text.toString(),
                                     study = dialogBinding.etStudy.text.toString(),
                                     short_rest = dialogBinding.etRest.text.toString(),
@@ -324,6 +400,7 @@ class ToDoListFragment : Fragment() {
 
         viewModel.addTodo(
             ToDoEntity(
+                group = current_group,
                 title = title,
                 pomo = pomo_,
                 study = study.toLong(),
@@ -336,6 +413,7 @@ class ToDoListFragment : Fragment() {
     }
 
     fun editToDo(
+        id: Int,
         title: String,
         study: String,
         short_rest: String,
@@ -351,6 +429,8 @@ class ToDoListFragment : Fragment() {
 
         viewModel.editTodo(
             ToDoEntity(
+                id = id,
+                group = current_group,
                 title = title,
                 pomo = pomo_,
                 study = study.toLong(),

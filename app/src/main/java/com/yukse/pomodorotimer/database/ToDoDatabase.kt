@@ -1,6 +1,7 @@
 package com.yukse.pomodorotimer.database
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -8,6 +9,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 //버전 업그레이드 - group 테이블 추가, 기존 테이블에 group 컬럼 추가
+//기존 데이터를 유지한채 변경된 사항을 적용할 경우 migration 사용
 val MIGRATION_1_2: Migration = object : Migration(1, 2) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL(
@@ -40,13 +42,27 @@ abstract class ToDoDatabase : RoomDatabase() {
         @Synchronized
         fun getInstance(context: Context): ToDoDatabase {
             if (instance == null) {
+                Log.d("txx", "데이터베이스 생성")
+                // fallbackToDestructiveMigration() 은 기존 데이터를 reset하고 변경된 사항적용해서 새로 시작하겠다는 뜻
                 instance = Room.databaseBuilder(
                     context.applicationContext,
                     ToDoDatabase::class.java,
                     DatabaseContract.DB_NAME.DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_1_2)
-                    .allowMainThreadQueries()
+                    .addCallback(object : Callback(){
+                        override fun onCreate(db: SupportSQLiteDatabase) {
+                            super.onCreate(db)
+                            Log.d("txx", "초기 데이터 생성")
+                            db.execSQL("insert into " + DatabaseContract.GROUP_TABLE_NAME +
+                                    "(" + DatabaseContract.GROUP + ") values ('나의 목록')")
+                        }
+
+                        override fun onOpen(db: SupportSQLiteDatabase) {
+                            super.onOpen(db)
+                            Log.d("txx", "on open")
+                        }
+                    })
+                    .fallbackToDestructiveMigration()
                     .build()
             }
             return instance!!
