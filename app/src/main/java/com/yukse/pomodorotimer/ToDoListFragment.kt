@@ -17,8 +17,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.yukse.pomodorotimer.database.GroupEntity
 import com.yukse.pomodorotimer.database.ToDoEntity
 import com.yukse.pomodorotimer.database.ToDoViewModel
@@ -32,10 +32,13 @@ class ToDoListFragment : Fragment() {
     }
 
     private var _binding: TodolistFragmentBinding? = null
+    private var _groupDialogBinding: GroupDialogBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+    private val groupDialogBinding get() = _groupDialogBinding!!
+    private lateinit var groupDialog: AlertDialog
     private lateinit var dataPassListener: OnDataPassLister
     private lateinit var viewModel: ToDoViewModel
 
@@ -69,6 +72,7 @@ class ToDoListFragment : Fragment() {
         // container : 부모 뷰
         //inflater.inflate의 반환값이 view이므로 그대로 반환해주면 됨.
         _binding = TodolistFragmentBinding.inflate(inflater, container, false)
+        _groupDialogBinding = GroupDialogBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -100,8 +104,11 @@ class ToDoListFragment : Fragment() {
         }
 
         binding.tvGroup.setOnClickListener {
-            groupListDialog()
+            groupDialog.show()
         }
+
+        // group list dialog 기본설정 - live data사용할 것
+        setGroupListDialog()
 
         //========== live data observer 설정 ====================
         //현재 그룹에 있는 list를 UI에 표시
@@ -118,6 +125,7 @@ class ToDoListFragment : Fragment() {
         })
         viewModel.getAllGroupLiveData().observe(viewLifecycleOwner, Observer {
             Log.d("txx", "group: " + it)
+            (groupDialogBinding.rvGrouplist.adapter as GroupAdapter).setData(it)
             if (current_group_id == 0) {
                 current_group_id = it[0].id
                 current_group_name = it[0].group
@@ -125,8 +133,7 @@ class ToDoListFragment : Fragment() {
                 binding.tvGroup.setText(current_group_name)
                 Log.d("txx", "first row")
                 Log.d("txx", "current_group: " + current_group_id)
-            }
-            else binding.tvGroup.setText(current_group_name)
+            } else binding.tvGroup.setText(current_group_name)
         })
     }
 
@@ -140,13 +147,12 @@ class ToDoListFragment : Fragment() {
                 groupAddOREditDialog("이름 변경")
             }
             R.id.action_delete -> {
-                if(viewModel.getAllGroup()?.size == 1){
+                if (viewModel.getAllGroup()?.size == 1) {
                     AlertDialog.Builder(context)
                         .setMessage("2개 이상의 목록이 존재할 경우 삭제 가능합니다.")
                         .setPositiveButton("확인", null)
                         .show()
-                }
-                else {
+                } else {
                     AlertDialog.Builder(context)
                         .setMessage("이 목록의 모든 타이머가 삭제됩니다.")
                         .setPositiveButton("확인", DialogInterface.OnClickListener { dialog, which ->
@@ -164,78 +170,79 @@ class ToDoListFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        _groupDialogBinding = null
     }
 
     //그룹 리스트 다이얼로그 띄우기
-    fun groupListDialog() {
-        val dialogBinding = GroupDialogBinding.inflate(LayoutInflater.from(context))
-        val dialog = AlertDialog.Builder(context)
-            .setView(dialogBinding.root)
+    fun setGroupListDialog() {
+        groupDialog = AlertDialog.Builder(context)
+            .setView(groupDialogBinding.root)
             .create()
 
-        dialogBinding.dialogTitle.setText("그룹 목록")
-        viewModel.getAllGroupNameData().observe(viewLifecycleOwner, Observer {
-            Log.d("txx", "group name" + it)
-            dialogBinding.lvSelectAction.adapter =
-                ArrayAdapter<String>(requireContext(), android.R.layout.simple_list_item_1, it)
+        val groupAdapter = GroupAdapter(emptyList(), context)
+        groupAdapter.setOnGroupClickListener(object : GroupAdapter.OnGroupClickListener {
+            override fun onGroupClick(position: Int) {
+                current_group_id = viewModel.getAllGroup()!![position].id
+                Log.d("txx", "click " + current_group_id)
+                current_group_name = viewModel.getAllGroup()!![position].group
+                binding.tvGroup.setText(current_group_name)
+                viewModel.setToDoLiveDataInGroup(current_group_id)
+                groupDialog.dismiss()
+            }
         })
-        dialogBinding.btGroupAdd.setOnClickListener {
+        groupDialogBinding.rvGrouplist.adapter = groupAdapter
+        groupDialogBinding.rvGrouplist.layoutManager = LinearLayoutManager(context)
+        groupDialogBinding.rvGrouplist.addItemDecoration(
+            DividerItemDecoration(
+                context,
+                LinearLayoutManager(context).orientation
+            )
+        )
+        groupDialogBinding.btGroupAdd.setOnClickListener {
             groupAddOREditDialog("목록 추가")
         }
-        dialogBinding.lvSelectAction.setOnItemClickListener { parent, view, position, id ->
-            current_group_id = viewModel.getAllGroup()!![position].id
-            Log.d("txx", "click " + current_group_id)
-            current_group_name = viewModel.getAllGroup()!![position].group
-            binding.tvGroup.setText(current_group_name)
-            viewModel.setToDoLiveDataInGroup(current_group_id)
-            dialog.dismiss()
-        }
-
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        dialog.show()
+        groupDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
     }
 
     fun groupAddOREditDialog(
         title: String
     ) {
-        val et_group_name = EditText(context)
+        val setGroupNameDialogBinding = SetGroupNameDialogBinding.inflate(LayoutInflater.from(context))
         val addDialog = AlertDialog.Builder(context)
-            .setTitle(title)
-            .setView(et_group_name)
-            .setPositiveButton("확인", null)
-            .setNegativeButton("취소", null)
+            .setView(setGroupNameDialogBinding.root)
             .create()
 
-        if (title == "이름 변경") {
-            et_group_name.setText(current_group_name)
-            et_group_name.selectAll()
-        }
-
-        addDialog.setOnShowListener(object : DialogInterface.OnShowListener {
-            override fun onShow(dialog: DialogInterface?) {
-                addDialog.getButton(Dialog.BUTTON_POSITIVE).setOnClickListener {
-                    if (et_group_name.text.isNullOrEmpty()) {
-                        Toast.makeText(context, "빈 칸을 채워주세요.", Toast.LENGTH_SHORT).show()
-                    } else {
-                        when (title) {
-                            "목록 추가" -> {
-                                viewModel.addGroup(GroupEntity(group = et_group_name.text.toString()))
-                            }
-                            "이름 변경" -> {
-                                current_group_name = et_group_name.text.toString()
-                                viewModel.editGroup(
-                                    GroupEntity(
-                                        id = current_group_id,
-                                        group = current_group_name
-                                    )
-                                )
-                            }
+        with(setGroupNameDialogBinding) {
+            this.dialogTitle.setText(title)
+            if (title == "이름 변경") {
+                this.dialogGroupName.setText(current_group_name)
+            }
+            this.btCancle.setOnClickListener {
+                addDialog.dismiss()
+            }
+            this.btOk.setOnClickListener {
+                if (this.dialogGroupName.text.isNullOrEmpty()) {
+                    Toast.makeText(context, "빈 칸을 채워주세요.", Toast.LENGTH_SHORT).show()
+                } else {
+                    when (title) {
+                        "목록 추가" -> {
+                            viewModel.addGroup(GroupEntity(group = this.dialogGroupName.text.toString()))
                         }
-                        addDialog.dismiss()
+                        "이름 변경" -> {
+                            current_group_name = this.dialogGroupName.text.toString()
+                            viewModel.editGroup(
+                                GroupEntity(
+                                    id = current_group_id,
+                                    group = current_group_name
+                                )
+                            )
+                        }
                     }
+                    addDialog.dismiss()
                 }
             }
-        })
+        }
+        addDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         addDialog.show()
     }
 

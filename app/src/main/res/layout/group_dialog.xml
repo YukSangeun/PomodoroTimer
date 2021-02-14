@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:gravity="center_vertical"
-            android:text="아이템 제목"
+            android:text="나의 목록"
             android:textColor="#000000"
             android:textSize="22dp"
             android:textStyle="bold" />
@@ -30,9 +30,10 @@
             />
     </RelativeLayout>
 
-    <ListView
-        android:id="@+id/lv_select_action"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_grouplist"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical" />
 
 </LinearLayout>

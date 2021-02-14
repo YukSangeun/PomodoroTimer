@@ -18,10 +18,6 @@ class ToDoRepository(private val toDoDao: ToDoDao) {
         return toDoDao.getAllGroup()
     }
 
-    fun getAllGroupName(): LiveData<List<String>>{
-        return toDoDao.getAllGroupName()
-    }
-
     suspend fun getToDoInGroup(group_id: Int): List<ToDoEntity>{
         return toDoDao.getToDoInGroup(group_id)
     }

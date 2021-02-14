@@ -15,9 +15,6 @@ interface ToDoDao {
     @Query("SELECT * FROM " + ToDoEntry.GROUP_TABLE_NAME)
     fun getAllGroup(): LiveData<List<GroupEntity>>
 
-    @Query("SELECT " + ToDoEntry.GROUP + " FROM " + ToDoEntry.GROUP_TABLE_NAME)
-    fun getAllGroupName(): LiveData<List<String>>
-
     @Query("SELECT * FROM " + ToDoEntry.ITEM_TABLE_NAME + " WHERE " + ToDoEntry.GROUP + " = :group_id")
     suspend fun getToDoInGroup(group_id: Int): List<ToDoEntity>
 

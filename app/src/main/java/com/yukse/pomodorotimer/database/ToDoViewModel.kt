@@ -37,10 +37,6 @@ class ToDoViewModel(application: Application) : AndroidViewModel(application) {
         return groupLiveData
     }
 
-    fun getAllGroupNameData(): LiveData<List<String>>{
-        return toDoRepository.getAllGroupName()
-    }
-
     fun setToDoLiveDataInGroup(group_id: Int) {
         viewModelScope.launch {
             todoInGroupData.value = toDoRepository.getToDoInGroup(group_id)
