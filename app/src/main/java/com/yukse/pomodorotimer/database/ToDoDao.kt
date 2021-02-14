@@ -21,9 +21,6 @@ interface ToDoDao {
     @Query("SELECT * FROM " + ToDoEntry.ITEM_TABLE_NAME + " WHERE " + ToDoEntry.GROUP + " = :group_id")
     suspend fun getToDoInGroup(group_id: Int): List<ToDoEntity>
 
-    @Query("SELECT * FROM " + ToDoEntry.GROUP_TABLE_NAME + " LIMIT 1")
-    fun getFirstRowGroup(): LiveData<GroupEntity>
-
     //suspend: 별도의 thread나 persistance transaction영역에서 실해아지 않아도 되어
     // 편의성이 좋아지고 보일러플레이트 코트들이 줄어든다.
     @Insert
@@ -41,7 +38,7 @@ interface ToDoDao {
     @Delete
     suspend fun deleteToDo(todo: ToDoEntity?)
 
-    @Delete
-    suspend fun deleteGroup(group: GroupEntity)
+    @Query("DELETE FROM " + ToDoEntry.GROUP_TABLE_NAME + " WHERE id = :id")
+    suspend fun deleteGroup(id: Int)
 
 }

@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.yukse.pomodorotimer.databinding.MainFragmentBinding
@@ -50,7 +49,7 @@ class MainFragment : Fragment() {
     //tool bar 에 menu 표시 설정 - add버튼 안보이도록
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        menu.setGroupVisible(R.id.action_add_gorup, false)
+        menu.setGroupVisible(R.id.action_todo_gorup, false)
     }
 
     override fun onStart() {

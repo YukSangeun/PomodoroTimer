@@ -43,7 +43,8 @@ class ToDoListFragment : Fragment() {
     private lateinit var sp: SharedPreferences
 
     //현재 화면에 나타나는 그룹
-    private var current_group: Int = 0
+    private var current_group_id: Int = 0
+    private var current_group_name: String = ""
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -103,14 +104,6 @@ class ToDoListFragment : Fragment() {
         }
 
         //========== live data observer 설정 ====================
-        viewModel.getFirstRowGroup().observe(viewLifecycleOwner, Observer {
-            // current_group이 null인 경우(초기 화면 생성시)만 변경하도록
-            if (current_group == 0) {
-                current_group = it.id
-                Log.d("txx", "current_group: " + current_group)
-                binding.tvGroup.setText(it.group)
-            }
-        })
         //현재 그룹에 있는 list를 UI에 표시
         viewModel.getToDoLiveDataInGroup().observe(viewLifecycleOwner, Observer {
             Log.d("txx", "리스트 표시: " + it)
@@ -118,11 +111,22 @@ class ToDoListFragment : Fragment() {
         })
         // 데이터 변경사항 있을 때마다 UI 업데이트
         viewModel.getAllToDoLiveData().observe(viewLifecycleOwner, Observer {
-            viewModel.setToDoLiveDataInGroup(current_group)
+            Log.d("txx", "todo Live data: " + current_group_id)
+            if (current_group_id != 0)
+                viewModel.setToDoLiveDataInGroup(current_group_id)
             Log.d("txx", "todo live data: " + viewModel.getAllTodo())
         })
         viewModel.getAllGroupLiveData().observe(viewLifecycleOwner, Observer {
             Log.d("txx", "group: " + it)
+            if (current_group_id == 0) {
+                current_group_id = it[0].id
+                current_group_name = it[0].group
+                viewModel.setToDoLiveDataInGroup(current_group_id)
+                binding.tvGroup.setText(current_group_name)
+                Log.d("txx", "first row")
+                Log.d("txx", "current_group: " + current_group_id)
+            }
+            else binding.tvGroup.setText(current_group_name)
         })
     }
 
@@ -131,6 +135,27 @@ class ToDoListFragment : Fragment() {
         when (item.itemId) {
             R.id.action_add -> {
                 itemInfoEditDialog("할 일 추가", 0, context)
+            }
+            R.id.action_edit -> {
+                groupAddOREditDialog("이름 변경")
+            }
+            R.id.action_delete -> {
+                if(viewModel.getAllGroup()?.size == 1){
+                    AlertDialog.Builder(context)
+                        .setMessage("2개 이상의 목록이 존재할 경우 삭제 가능합니다.")
+                        .setPositiveButton("확인", null)
+                        .show()
+                }
+                else {
+                    AlertDialog.Builder(context)
+                        .setMessage("이 목록의 모든 타이머가 삭제됩니다.")
+                        .setPositiveButton("확인", DialogInterface.OnClickListener { dialog, which ->
+                            viewModel.deleteGroup(current_group_id)
+                            current_group_id = 0
+                        })
+                        .setNegativeButton("취소", null)
+                        .show()
+                }
             }
         }
         return super.onOptionsItemSelected(item)
@@ -155,38 +180,63 @@ class ToDoListFragment : Fragment() {
                 ArrayAdapter<String>(requireContext(), android.R.layout.simple_list_item_1, it)
         })
         dialogBinding.btGroupAdd.setOnClickListener {
-            val et_group_name = EditText(context)
-            val addDialog = AlertDialog.Builder(context)
-                .setTitle("그룹 추가")
-                .setView(et_group_name)
-                .setPositiveButton("확인", null)
-                .setNegativeButton("취소", null)
-                .create()
-
-            addDialog.setOnShowListener(object : DialogInterface.OnShowListener {
-                override fun onShow(dialog: DialogInterface?) {
-                    addDialog.getButton(Dialog.BUTTON_POSITIVE).setOnClickListener {
-                        if (et_group_name.text.isNullOrEmpty()) {
-                            Toast.makeText(context, "빈 칸을 채워주세요.", Toast.LENGTH_SHORT).show()
-                        } else{
-                            viewModel.addGroup(GroupEntity(group = et_group_name.text.toString()))
-                            addDialog.dismiss()
-                        }
-                    }
-                }
-            })
-            addDialog.show()
+            groupAddOREditDialog("목록 추가")
         }
         dialogBinding.lvSelectAction.setOnItemClickListener { parent, view, position, id ->
-            current_group = viewModel.getAllGroup()!![position].id
-            Log.d("txx", "click " + current_group)
-            binding.tvGroup.setText(viewModel.getAllGroup()?.get(position)?.group)
-            viewModel.setToDoLiveDataInGroup(current_group)
+            current_group_id = viewModel.getAllGroup()!![position].id
+            Log.d("txx", "click " + current_group_id)
+            current_group_name = viewModel.getAllGroup()!![position].group
+            binding.tvGroup.setText(current_group_name)
+            viewModel.setToDoLiveDataInGroup(current_group_id)
             dialog.dismiss()
         }
 
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialog.show()
+    }
+
+    fun groupAddOREditDialog(
+        title: String
+    ) {
+        val et_group_name = EditText(context)
+        val addDialog = AlertDialog.Builder(context)
+            .setTitle(title)
+            .setView(et_group_name)
+            .setPositiveButton("확인", null)
+            .setNegativeButton("취소", null)
+            .create()
+
+        if (title == "이름 변경") {
+            et_group_name.setText(current_group_name)
+            et_group_name.selectAll()
+        }
+
+        addDialog.setOnShowListener(object : DialogInterface.OnShowListener {
+            override fun onShow(dialog: DialogInterface?) {
+                addDialog.getButton(Dialog.BUTTON_POSITIVE).setOnClickListener {
+                    if (et_group_name.text.isNullOrEmpty()) {
+                        Toast.makeText(context, "빈 칸을 채워주세요.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        when (title) {
+                            "목록 추가" -> {
+                                viewModel.addGroup(GroupEntity(group = et_group_name.text.toString()))
+                            }
+                            "이름 변경" -> {
+                                current_group_name = et_group_name.text.toString()
+                                viewModel.editGroup(
+                                    GroupEntity(
+                                        id = current_group_id,
+                                        group = current_group_name
+                                    )
+                                )
+                            }
+                        }
+                        addDialog.dismiss()
+                    }
+                }
+            }
+        })
+        addDialog.show()
     }
 
     //수정 or 삭제 다이얼로그 띄우기
@@ -400,7 +450,7 @@ class ToDoListFragment : Fragment() {
 
         viewModel.addTodo(
             ToDoEntity(
-                group = current_group,
+                group = current_group_id,
                 title = title,
                 pomo = pomo_,
                 study = study.toLong(),
@@ -430,7 +480,7 @@ class ToDoListFragment : Fragment() {
         viewModel.editTodo(
             ToDoEntity(
                 id = id,
-                group = current_group,
+                group = current_group_id,
                 title = title,
                 pomo = pomo_,
                 study = study.toLong(),

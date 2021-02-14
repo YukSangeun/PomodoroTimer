@@ -47,12 +47,8 @@ class ToDoViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun getToDoLiveDataInGroup(): MutableLiveData<List<ToDoEntity>>{
+    fun getToDoLiveDataInGroup(): LiveData<List<ToDoEntity>>{
         return todoInGroupData
-    }
-    // group table에서 1행 데이터 - 초기 UI에 나타낼 그룹
-    fun getFirstRowGroup(): LiveData<GroupEntity>{
-        return toDoRepository.getFirstRowGroup()
     }
 
     fun addTodo(todo: ToDoEntity) = viewModelScope.launch {
@@ -76,6 +72,6 @@ class ToDoViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun deleteGroup(position: Int) = viewModelScope.launch {
-        toDoRepository.deleteGroup(groupLiveData.value!!.get(position))
+        toDoRepository.deleteGroup(position)
     }
 }

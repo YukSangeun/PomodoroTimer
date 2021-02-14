@@ -26,10 +26,6 @@ class ToDoRepository(private val toDoDao: ToDoDao) {
         return toDoDao.getToDoInGroup(group_id)
     }
 
-    fun getFirstRowGroup(): LiveData<GroupEntity>{
-        return toDoDao.getFirstRowGroup()
-    }
-
     suspend fun insertToDo(toDoEntity: ToDoEntity) {
         toDoDao.insertToDO(toDoEntity)
     }
@@ -50,8 +46,8 @@ class ToDoRepository(private val toDoDao: ToDoDao) {
         toDoDao.deleteToDo(toDoEntity)
     }
 
-    suspend fun deleteGroup(groupEntity: GroupEntity){
-        toDoDao.deleteGroup(groupEntity)
+    suspend fun deleteGroup(group_id: Int){
+        toDoDao.deleteGroup(group_id)
     }
 
 }
