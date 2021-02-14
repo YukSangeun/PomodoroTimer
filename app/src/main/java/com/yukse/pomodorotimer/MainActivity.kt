@@ -23,11 +23,11 @@ class MainActivity : AppCompatActivity(), ToDoListFragment.OnDataPassLister {
     override fun onDataPass(item: ToDoEntity) {
         val sp = PreferenceManager.getDefaultSharedPreferences(this@MainActivity)
 
-        val studyT = if (item.study == null) sp.getInt("study_time", 1).toLong() else item.study
-        val shortRestT = if (item.short_rest == null) sp.getInt("short_rest_time", 1)
+        val studyT = if (item.study == null) sp.getInt("study_time", 25).toLong() else item.study
+        val shortRestT = if (item.short_rest == null) sp.getInt("short_rest_time", 5)
             .toLong() else item.short_rest
         val longRestT =
-            if (item.long_rest == null) sp.getInt("long_rest_time", 1).toLong() else item.long_rest
+            if (item.long_rest == null) sp.getInt("long_rest_time", 30).toLong() else item.long_rest
         val pomo = if (item.pomo == null) sp.getInt("long_rest_pomo", 4) else item.pomo
         val auto =
             if (item.autoStart == null) sp.getBoolean("auto_timer", false) else item.autoStart

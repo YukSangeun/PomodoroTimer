@@ -103,7 +103,7 @@ class ToDoListFragment : Fragment() {
             this.layoutManager = LinearLayoutManager(context)
         }
 
-        binding.tvGroup.setOnClickListener {
+        binding.groupTitle.setOnClickListener {
             groupDialog.show()
         }
 
@@ -141,7 +141,7 @@ class ToDoListFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_add -> {
-                itemInfoEditDialog("할 일 추가", 0, context)
+                itemInfoEditDialog("작업 추가", 0, context)
             }
             R.id.action_edit -> {
                 groupAddOREditDialog("이름 변경")
@@ -268,7 +268,7 @@ class ToDoListFragment : Fragment() {
         dialogBinding.lvSelectAction.setOnItemClickListener { parent, view, position, id ->
             when (position) {
                 0 -> {
-                    itemInfoEditDialog("할 일 수정", item_pos, context)
+                    itemInfoEditDialog("작업 수정", item_pos, context)
                 }
                 1 -> {
                     //삭제
@@ -292,7 +292,7 @@ class ToDoListFragment : Fragment() {
 
         dialogBinding.dialogTitle.setText(title)
         //기존 값 불러와 화면에 표시
-        if (title.equals("할 일 수정")) {
+        if (title.equals("작업 수정")) {
             dialogBinding.etTitle.setText(viewModel.getToDoLiveDataInGroup().value!!.get(position).title)
             dialogBinding.etTimes.setText(viewModel.getToDoLiveDataInGroup().value!!.get(position).pomo.toString())
             dialogBinding.etStudy.setText(viewModel.getToDoLiveDataInGroup().value!!.get(position).study.toString())
@@ -302,7 +302,7 @@ class ToDoListFragment : Fragment() {
                 viewModel.getToDoLiveDataInGroup().value!!.get(position).autoStart
             dialogBinding.cbNoLong.isChecked =
                 viewModel.getToDoLiveDataInGroup().value!!.get(position).noLong
-        } else {   //"할 일 추가"
+        } else {   //"작업 추가"
             dialogBinding.etTimes.setText(sp.getInt("long_rest_pomo", 4).toString())
             dialogBinding.etStudy.setText(sp.getInt("study_time", 25).toString())
             dialogBinding.etRest.setText(sp.getInt("short_rest_time", 5).toString())
@@ -388,7 +388,7 @@ class ToDoListFragment : Fragment() {
                         Toast.makeText(context, "빈 칸을 채워주세요.", Toast.LENGTH_SHORT).show()
                     } else {
                         when (title) {
-                            "할 일 추가" -> {
+                            "작업 추가" -> {
                                 addToDo(
                                     title = dialogBinding.etTitle.text.toString(),
                                     study = dialogBinding.etStudy.text.toString(),
@@ -399,7 +399,7 @@ class ToDoListFragment : Fragment() {
                                     noLong = dialogBinding.cbNoLong.isChecked
                                 )
                             }
-                            "할 일 수정" -> {
+                            "작업 수정" -> {
                                 editToDo(
                                     id = viewModel.getToDoLiveDataInGroup().value!!.get(position).id,
                                     title = dialogBinding.etTitle.text.toString(),

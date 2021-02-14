@@ -54,7 +54,7 @@ abstract class ToDoDatabase : RoomDatabase() {
                             super.onCreate(db)
                             Log.d("txx", "초기 데이터 생성")
                             db.execSQL("insert into " + DatabaseContract.GROUP_TABLE_NAME +
-                                    "(" + DatabaseContract.GROUP + ") values ('타이머')")
+                                    "(" + DatabaseContract.GROUP + ") values ('나의 작업')")
                         }
 
                         override fun onOpen(db: SupportSQLiteDatabase) {
