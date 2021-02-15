@@ -227,9 +227,10 @@ class PomoTimerActivity : AppCompatActivity() {
         Log.d("startt", "" + mMillisInFuture + " " + currentTimer + " " + studyCnt)
 
         timer =
-            object : CountDownTimer(mMillisInFuture, PERIOD) {
+            object : CountDownTimer(mMillisInFuture, PERIOD/10) {
 
                 override fun onFinish() {
+                    binding.cpbCirclebar.progress = 0
                     finishedCountDownTimer()
                 }
 
@@ -238,6 +239,7 @@ class PomoTimerActivity : AppCompatActivity() {
                     val m = (millisUntilFinished / (60 * PERIOD)) % 60
                     val h = (millisUntilFinished / (60 * PERIOD)) / 60
 
+                    binding.cpbCirclebar.progress = millisUntilFinished.toInt()
                     if (h > 0) {
                         updateNotification(
                             binding.timerToolbarTitle.text.toString(),
@@ -362,6 +364,8 @@ class PomoTimerActivity : AppCompatActivity() {
             binding.timerToolbarTitle.setText(R.string.timer_long_rest_name)
             //    binding.tvTitle.setText("긴 휴식")
         }
+        binding.cpbCirclebar.max = mMillisInFuture.toInt()
+        binding.cpbCirclebar.progress = mMillisInFuture.toInt()
 
         val s = (mMillisInFuture / PERIOD) % 60
         val m = (mMillisInFuture / (60 * PERIOD)) % 60

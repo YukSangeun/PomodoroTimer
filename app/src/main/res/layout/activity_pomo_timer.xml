@@ -26,7 +26,18 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="500dp">
+        android:layout_height="500dp"
+        android:layout_margin="10dp">
+
+        <com.dinuscxj.progressbar.CircleProgressBar
+            android:id="@+id/cpb_circlebar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:progress_end_color="@color/pink"
+            app:progress_start_color="@color/red"
+            app:progress_stroke_cap="butt"
+            app:style="solid"
+            app:progress_text_size="0dp"/>
 
         <TextView
             android:id="@+id/tv_timer_time"
@@ -35,16 +46,16 @@
             android:layout_centerVertical="true"
             android:gravity="center"
             android:text="00 : 00 : 00"
-            android:textColor="@color/pink"
-            android:textSize="70dp" />
+            android:textColor="@color/black"
+            android:textSize="60dp" />
 
         <TextView
             android:id="@+id/tv_pomoTimes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_timer_time"
-            android:gravity="center_horizontal"
             android:layout_marginTop="10dp"
+            android:gravity="center_horizontal"
             android:text="1 / 4"
             android:textSize="17dp" />
     </RelativeLayout>
