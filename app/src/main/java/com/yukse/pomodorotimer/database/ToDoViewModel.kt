@@ -33,17 +33,15 @@ class ToDoViewModel(application: Application) : AndroidViewModel(application) {
         return todoLiveData
     }
 
-    fun getAllGroupLiveData(): LiveData<List<GroupEntity>>{
+    fun getAllGroupLiveData(): LiveData<List<GroupEntity>> {
         return groupLiveData
     }
 
-    fun setToDoLiveDataInGroup(group_id: Int) {
-        viewModelScope.launch {
-            todoInGroupData.value = toDoRepository.getToDoInGroup(group_id)
-        }
+    fun setToDoLiveDataInGroup(group_id: Int) = viewModelScope.launch {
+        todoInGroupData.value = toDoRepository.getToDoInGroup(group_id)
     }
 
-    fun getToDoLiveDataInGroup(): LiveData<List<ToDoEntity>>{
+    fun getToDoLiveDataInGroup(): LiveData<List<ToDoEntity>> {
         return todoInGroupData
     }
 
