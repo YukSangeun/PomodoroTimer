@@ -10,12 +10,14 @@
             app:showAsAction="ifRoom" />
         <item
             android:id="@+id/action_edit"
+            android:icon="@drawable/ic_baseline_edit_24"
             android:title="@string/action_edit_group"
-            app:showAsAction="never" />
+            app:showAsAction="ifRoom" />
         <item
             android:id="@+id/action_delete"
+            android:icon="@drawable/ic_baseline_delete_24"
             android:title="@string/action_delete_group"
-            app:showAsAction="never" />
+            app:showAsAction="ifRoom" />
     </group>
 
     <item
