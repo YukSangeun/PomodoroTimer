@@ -6,6 +6,7 @@
     android:orientation="vertical">
 
     <LinearLayout
+        android:id="@+id/ll_time_box"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -76,12 +77,12 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tv_long_rest"
+                android:id="@+id/tv_pomo"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center_horizontal|bottom"
-                android:text="30"
+                android:text="4"
                 android:textSize="70dp" />
 
             <TextView
@@ -91,12 +92,12 @@
                 android:background="@color/pink" />
 
             <TextView
-                android:id="@+id/tv_pomo"
+                android:id="@+id/tv_long_rest"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center_horizontal|bottom"
-                android:text="4"
+                android:text="30"
                 android:textSize="70dp" />
 
         </LinearLayout>
@@ -113,14 +114,14 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="긴 휴식 시간" />
+                android:text="뽀모 횟수" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="긴 휴식 당 집중 횟수" />
+                android:text="긴 휴식 시간" />
 
         </LinearLayout>
 

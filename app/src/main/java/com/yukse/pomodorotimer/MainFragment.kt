@@ -44,6 +44,10 @@ class MainFragment : Fragment() {
             val timer_intent = Intent(context, PomoTimerActivity::class.java)
             startActivity(timer_intent)
         }
+        binding.llTimeBox.setOnClickListener{
+            val setting_intent = Intent(context, SettingActivity::class.java)
+            startActivity(setting_intent)
+        }
     }
 
     //tool bar 에 menu 표시 설정 - add버튼 안보이도록

@@ -1,13 +1,20 @@
 package com.yukse.pomodorotimer
 
-import android.content.Context
+import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.LayoutInflater
+import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.preference.*
+import com.yukse.pomodorotimer.database.GroupEntity
+import com.yukse.pomodorotimer.databinding.SetGroupNameDialogBinding
 
 class SettingPreferenceFragment : PreferenceFragmentCompat() {
 
@@ -55,6 +62,85 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
             showRingtonePickerDialog()
         }
 
+        //시간 설정 리스너
+        preferenceScreen.findPreference<Preference>("study_time")?.setOnPreferenceClickListener {
+            _showDialog("study_time", it.title.toString())
+        }
+        preferenceScreen.findPreference<Preference>("short_rest_time")
+            ?.setOnPreferenceClickListener {
+                _showDialog("short_rest_time", it.title.toString())
+            }
+        preferenceScreen.findPreference<Preference>("long_rest_time")
+            ?.setOnPreferenceClickListener {
+                _showDialog("long_rest_time", it.title.toString())
+            }
+        preferenceScreen.findPreference<Preference>("long_rest_pomo")
+            ?.setOnPreferenceClickListener {
+                _showDialog("long_rest_pomo", it.title.toString())
+            }
+    }
+
+    fun _showDialog(key: String, title: String): Boolean {
+        val TimeSettingBinding =
+            SetGroupNameDialogBinding.inflate(LayoutInflater.from(context))
+        val addDialog = AlertDialog.Builder(context)
+            .setView(TimeSettingBinding.root)
+            .create()
+
+        with(TimeSettingBinding) {
+            dialogGroupName.inputType = R.attr.number
+            when(key){
+                "study_time"->{
+                    this.dialogGroupName.setText(PreferenceManager.getDefaultSharedPreferences(context)
+                        .getInt(key, 25).toString())
+                }
+                "short_rest_time"->{
+                    this.dialogGroupName.setText(PreferenceManager.getDefaultSharedPreferences(context)
+                        .getInt(key, 5).toString())
+                }
+                "long_rest_time"->{
+                    this.dialogGroupName.setText(PreferenceManager.getDefaultSharedPreferences(context)
+                        .getInt(key, 20).toString())
+                }
+                else->{
+                    this.dialogGroupName.setText(PreferenceManager.getDefaultSharedPreferences(context)
+                        .getInt(key, 4).toString())
+                }
+            }
+            this.dialogGroupName.addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(s: Editable?) {}
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    val number = s.toString()
+                    if (number != "") {
+                        if (key != "long_rest_pomo" && number.toInt() > 240) {
+                            TimeSettingBinding.dialogGroupName.setText("240")
+                        }
+                        else if(key == "long_rest_pomo" && number.toInt() > 10){
+                            TimeSettingBinding.dialogGroupName.setText("10")
+                        }
+                    }
+                }
+            })
+            this.dialogTitle.setText(title)
+            this.btCancle.setOnClickListener {
+                addDialog.dismiss()
+            }
+            this.btOk.setOnClickListener {
+                if (this.dialogGroupName.text.isNullOrEmpty()) {
+                    Toast.makeText(context, "빈 칸을 채워주세요.", Toast.LENGTH_SHORT).show()
+                } else {
+                    val editor = PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    editor.putInt(key, this.dialogGroupName.text.toString().toInt())
+                    editor.commit()
+                    addDialog.dismiss()
+                }
+            }
+        }
+        addDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        addDialog.show()
+
+        return true
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

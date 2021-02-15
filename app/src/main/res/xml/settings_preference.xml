@@ -2,48 +2,34 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory
-        android:iconSpaceReserved="false"
-        android:title="시간 설정">
-
-        <SeekBarPreference
+    <PreferenceCategory android:title="시간 설정">
+        <Preference
             android:defaultValue="25"
             android:key="study_time"
-            android:max="240"
-            android:title="집중 시간"
-            app:min="1"
-            app:showSeekBarValue="true" />
+            android:title="집중 시간" />
 
-        <SeekBarPreference
+        <Preference
             android:defaultValue="5"
             android:key="short_rest_time"
-            android:max="240"
-            android:title="휴식 시간"
-            app:min="1"
-            app:showSeekBarValue="true" />
+            android:title="휴식 시간"/>
 
         <SwitchPreference
             android:defaultValue="true"
             android:key="use_long_rest"
             android:title="긴 휴식 구간 사용" />
 
-        <SeekBarPreference
-            android:defaultValue="30"
+        <Preference
+            android:defaultValue="4"
+            android:dependency="use_long_rest"
+            android:key="long_rest_pomo"
+            android:title="뽀모 횟수"
+            android:summary="긴 휴식 전 반복할 뽀모 횟수를 설정하세요."/>
+
+        <Preference
+            android:defaultValue="20"
             android:dependency="use_long_rest"
             android:key="long_rest_time"
-            android:max="240"
-            android:title="긴 휴식 시간"
-            app:min="1"
-            app:showSeekBarValue="true" />
-
-        <SeekBarPreference
-            android:key="long_rest_pomo"
-            android:title="긴 휴식 당 집중 횟수"
-            android:defaultValue="4"
-            app:showSeekBarValue="true"
-            android:dependency="use_long_rest"
-            android:max="10"
-            app:min="1"/>
+            android:title="긴 휴식 시간" />
 
     </PreferenceCategory>
 
@@ -78,7 +64,6 @@
             android:key="auto_timer"
             android:summary="집중 시간 또는 휴식 시간이 종료 시 다음 작업이 자동 시작됩니다."
             android:title="타이머 자동 시작" />
-
 
     </PreferenceCategory>
 
