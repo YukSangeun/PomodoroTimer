@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Pomodoro Timer</string>
+    <string name="app_name">Pomodoro</string>
     <!-- tool bar menu액션 -->
     <string name="action_add">Add</string>
     <string name="action_edit_group">이름 변경</string>
