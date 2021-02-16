@@ -1,14 +1,65 @@
 <resources>
     <string name="app_name">Pomodoro</string>
     <!-- tool bar menu액션 -->
-    <string name="action_add">Add</string>
-    <string name="action_edit_group">이름 변경</string>
-    <string name="action_delete_group">목록 삭제</string>
+    <string name="action_add">Add Timer</string>
+    <string name="action_edit_group">Edit Name</string>
+    <string name="action_delete_group">Delete List</string>
     <string name="action_settings">Settings</string>
-    <!-- tool bar title -->
-    <string name="timer_study_name">집중</string>
-    <string name="timer_rest_name">휴식</string>
-    <string name="timer_long_rest_name">긴휴식</string>
-    <string name="settings_name">설정</string>
-
+    <string name="action_add_group">Add List</string>
+    <string name="unable_delete_group">If you have more than one list, you can delete it.</string>
+    <string name="able_delete_group">This will delete all tasks in this list.</string>
+    <!-- tool bar title, 작업추가 다이얼로그 -->
+    <string name="timer_study_name">Focus</string>
+    <string name="timer_rest_name">Break</string>
+    <string name="timer_long_rest_name">Long Break</string>
+    <string name="settings_name">Settings</string>
+    <!-- 작업추가 다이얼로그 -->
+    <string name="timer_add_dialog_title">Add Task</string>
+    <string name="timer_edit_dialog_title">Edit Task</string>
+    <string name="timer_title">Title</string>
+    <string name="timer_minutes">min</string>
+    <string name="timer_no_long_rest">Disable</string>
+    <string name="timer_pomo">Repeat</string>
+    <string name="timer_auto_start">Auto start</string>
+    <!-- 작업변경 다이얼로그 -->
+    <string-array name="timer_edit">
+        <item>Edit</item>
+        <item>Delete</item>
+    </string-array>
+    <string name="timer_delete">This will delete this task.</string>
+    <!-- 취소, 확인 버튼 -->
+    <string name="button_ok">Done</string>
+    <string name="button_cancle">Cancel</string>
+    <!-- edit text 빈칸일 경우 -->
+    <string name="empty_message">Fill in the blanks.</string>
+    <!-- 목록 다이얼로그 -->
+    <string name="group_list">My Lists</string>
+    <!-- settings -->
+    <string name="settings_timer">Time Setting</string>
+    <string name="settings_study">Focus time</string>
+    <string name="settings_rest">Break time</string>
+    <string name="settings_no_long_rest">Enable long breaks</string>
+    <string name="settings_pomo">Repeat</string>
+    <string name="settings_long_rest">Long break time</string>
+    <string name="settings_alarm">Notification Setting</string>
+    <string name="settings_finish_alarm">Sound</string>
+    <string name="settings_finish_vib">Vibration</string>
+    <string name="settings_sound">Finished timer notification</string>
+    <string name="settings_sound_hint">Please set the notification sound</string>
+    <string name="settings_more">Other Settings</string>
+    <string name="settings_always_on_display">Keep the screen on</string>
+    <string name="settings_timer_auto_start">Auto start</string>
+    <string name="settings_timer_auto_hint">Start the next session after a break or focus without user interaction.</string>
+    <!-- main fragment -->
+    <string name="pomodoro_start">Start!</string>
+    <string name="pomodoro_set_dialog_title">Pomodoro Combination</string>
+    <string-array name="pomodoro_set">
+        <item>(25min - 5min) x 4SET - 20min</item>
+        <item>(50min - 10min) x 4SET - 40min</item>
+        <item>(75min - 15min) x 4SET - 40min</item>
+    </string-array>
+    <!-- timerActivity -->
+    <string name="timer_exit">Are you sure you want to exit the Pomodoro?</string>
+    <!-- 앱 종료 -->
+    <string name="app_exit">Press the back button again to exit</string>
 </resources>

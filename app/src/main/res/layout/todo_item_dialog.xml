@@ -25,14 +25,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="제목: "
+            android:text="@string/timer_title"
+            android:layout_marginRight="10dp"
             android:textSize="15dp" />
 
         <EditText
             android:id="@+id/et_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="제목을 입력하세요."
             android:selectAllOnFocus="true" />
 
     </LinearLayout>
@@ -45,7 +45,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="집중: "
+            android:text="@string/timer_study_name"
+            android:layout_marginRight="10dp"
             android:textSize="15dp" />
 
         <EditText
@@ -54,13 +55,12 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:inputType="number"
-            android:selectAllOnFocus="true"
-            android:text="25" />
+            android:selectAllOnFocus="true" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="분"
+            android:text="@string/timer_minutes"
             android:textSize="15dp" />
 
     </LinearLayout>
@@ -73,7 +73,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="휴식: "
+            android:text="@string/timer_rest_name"
+            android:layout_marginRight="10dp"
             android:textSize="15dp" />
 
         <EditText
@@ -82,13 +83,12 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:inputType="number"
-            android:selectAllOnFocus="true"
-            android:text="5" />
+            android:selectAllOnFocus="true" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="분"
+            android:text="@string/timer_minutes"
             android:textSize="15dp" />
 
     </LinearLayout>
@@ -101,7 +101,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="긴 휴식: "
+            android:text="@string/timer_long_rest_name"
+            android:layout_marginRight="10dp"
             android:textSize="15dp" />
 
         <EditText
@@ -110,20 +111,20 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:inputType="number"
-            android:selectAllOnFocus="true"
-            android:text="30" />
+            android:selectAllOnFocus="true" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="분"
+            android:text="@string/timer_minutes"
+            android:layout_marginRight="10dp"
             android:textSize="15dp" />
 
         <CheckBox
             android:id="@+id/cb_no_long"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="사용 안함" />
+            android:text="@string/timer_no_long_rest" />
 
     </LinearLayout>
 
@@ -135,7 +136,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="긴 휴식 당 집중 횟수: "
+            android:text="@string/timer_pomo"
+            android:layout_marginRight="10dp"
             android:textSize="15dp" />
 
         <EditText
@@ -144,8 +146,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:inputType="number"
-            android:selectAllOnFocus="true"
-            android:text="4" />
+            android:selectAllOnFocus="true" />
 
     </LinearLayout>
 
@@ -153,7 +154,7 @@
         android:id="@+id/cb_pomo_auto_run"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="뽀모 자동 시작" />
+        android:text="@string/timer_auto_start" />
     
     <LinearLayout
         android:layout_width="match_parent"
@@ -167,7 +168,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/Widget.AppCompat.Button.Borderless"
-            android:text="취소"/>
+            android:text="@string/button_cancle"/>
 
         <Button
             android:id="@+id/bt_ok"
@@ -175,7 +176,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/Widget.AppCompat.Button.Borderless"
-            android:text="확인"/>
+            android:text="@string/button_ok"/>
         
     </LinearLayout>
 

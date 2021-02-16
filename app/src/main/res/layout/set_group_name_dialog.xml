@@ -34,7 +34,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         style="@style/Widget.AppCompat.Button.Borderless"
-        android:text="취소"/>
+        android:text="@string/button_cancle"/>
 
     <Button
         android:id="@+id/bt_ok"
@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         style="@style/Widget.AppCompat.Button.Borderless"
-        android:text="확인"/>
+        android:text="@string/button_ok"/>
 
 </LinearLayout>
 

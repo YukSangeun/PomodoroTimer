@@ -2,68 +2,67 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory android:title="시간 설정">
+    <PreferenceCategory android:title="@string/settings_timer">
         <Preference
             android:defaultValue="25"
             android:key="study_time"
-            android:title="집중 시간" />
+            android:title="@string/settings_study" />
 
         <Preference
             android:defaultValue="5"
             android:key="short_rest_time"
-            android:title="휴식 시간"/>
+            android:title="@string/settings_rest"/>
 
         <SwitchPreference
             android:defaultValue="true"
             android:key="use_long_rest"
-            android:title="긴 휴식 구간 사용" />
+            android:title="@string/settings_no_long_rest" />
 
         <Preference
             android:defaultValue="4"
             android:dependency="use_long_rest"
             android:key="long_rest_pomo"
-            android:title="뽀모 횟수"
-            android:summary="긴 휴식 전 반복할 뽀모 횟수를 설정하세요."/>
+            android:title="@string/settings_pomo"/>
 
         <Preference
             android:defaultValue="20"
             android:dependency="use_long_rest"
             android:key="long_rest_time"
-            android:title="긴 휴식 시간" />
+            android:title="@string/settings_long_rest" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="알림 설정">
+    <PreferenceCategory android:title="@string/settings_alarm">
 
         <SwitchPreference
             android:defaultValue="true"
             android:key="alarm_set"
-            android:title="타이머 종료 알림" />
+            android:title="@string/settings_finish_alarm" />
 
         <SwitchPreference
             android:defaultValue="true"
             android:key="vibration_set"
-            android:title="타이머 종료 진동" />
+            android:title="@string/settings_finish_vib" />
 
         <Preference
             android:key="alarm_intent"
-            android:summary="알림 소리를 설정하세요."
-            android:title="알림 소리" />
+            android:summary="@string/settings_sound_hint"
+            android:title="@string/settings_sound" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="기타 설정">
+    <PreferenceCategory android:title="@string/settings_more">
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="display"
-            android:title="화면 켜진 상태 유지" />
+            android:title="@string/settings_always_on_display" />
 
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="auto_timer"
-            android:summary="집중 시간 또는 휴식 시간이 종료 시 다음 작업이 자동 시작됩니다."
-            android:title="타이머 자동 시작" />
+            android:summary="@string/settings_timer_auto_hint"
+            android:title="@string/settings_timer_auto_start" />
 
     </PreferenceCategory>
 

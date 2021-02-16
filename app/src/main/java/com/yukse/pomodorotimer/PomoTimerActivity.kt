@@ -135,11 +135,11 @@ class PomoTimerActivity : AppCompatActivity() {
         autoTimer?.cancel()
         //정말 끌건지 확인하는 다이얼로그 띄우기
         AlertDialog.Builder(this@PomoTimerActivity)
-            .setMessage("타이머가 종료됩니다.\n현재 작동 중인 타이머를 종료하시겠습니까?")
-            .setPositiveButton("확인", DialogInterface.OnClickListener { dialog, which ->
+            .setMessage(R.string.timer_exit)
+            .setPositiveButton(R.string.button_ok, DialogInterface.OnClickListener { dialog, which ->
                 super.onBackPressed()
             })
-            .setNegativeButton("취소", DialogInterface.OnClickListener { dialog, which ->
+            .setNegativeButton(R.string.button_cancle, DialogInterface.OnClickListener { dialog, which ->
                 if(currentButton == CurrentButton.PLAY)
                     startCountDownTimer()
             })
@@ -200,9 +200,9 @@ class PomoTimerActivity : AppCompatActivity() {
     }
 
     fun setTimerValue() {
-        studyT = intent.getLongExtra("study", sp.getInt("study_time", 1).toLong())
-        shortRestT = intent.getLongExtra("shortRest", sp.getInt("short_rest_time", 1).toLong())
-        longRestT = intent.getLongExtra("longRest", sp.getInt("long_rest_time", 1).toLong())
+        studyT = intent.getLongExtra("study", sp.getInt("study_time", 25).toLong())
+        shortRestT = intent.getLongExtra("shortRest", sp.getInt("short_rest_time", 5).toLong())
+        longRestT = intent.getLongExtra("longRest", sp.getInt("long_rest_time", 20).toLong())
         pomo = intent.getIntExtra("pomo", sp.getInt("long_rest_pomo", 4))
         auto = intent.getBooleanExtra("auto", sp.getBoolean("auto_timer", false))
         noLongRest = intent.getBooleanExtra("noLongRest", !(sp.getBoolean("use_long_rest", true)))
@@ -216,7 +216,6 @@ class PomoTimerActivity : AppCompatActivity() {
                     startCountDownTimer()
                     currentButton = CurrentButton.PLAY
                     binding.btStart.setBackgroundResource(R.drawable.ic_baseline_pause_circle_outline_24)
-                    //binding.btStart.setText("중지")
                 }
 
                 override fun onTick(millisUntilFinished: Long) {}
@@ -246,9 +245,7 @@ class PomoTimerActivity : AppCompatActivity() {
                             "${df.format(h)} : ${df.format(m)} : ${df.format(s)}"
                         )
                         binding.tvTimerTime.setText(
-                            "${df.format(h)} : ${df.format(m)} : ${df.format(
-                                s
-                            )}"
+                            "${df.format(h)} : ${df.format(m)} : ${df.format(s)}"
                         )
                     } else {
                         binding.tvTimerTime.setText("${df.format(m)} : ${df.format(s)}")
@@ -270,7 +267,6 @@ class PomoTimerActivity : AppCompatActivity() {
     }
 
     fun finishedCountDownTimer() {
-        val finishToast: Toast
         vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
         //진동
@@ -301,51 +297,26 @@ class PomoTimerActivity : AppCompatActivity() {
         if (currentTimer == CurrentTimer.STUDY) {
             if (studyCnt < pomo || noLongRest) {
                 //short rest
-                finishToast = Toast.makeText(
-                    this@PomoTimerActivity,
-                    "집중이 종료되었습니다.\n휴식으로 전환됩니다.",
-                    Toast.LENGTH_SHORT
-                )
                 currentTimer = CurrentTimer.SHORTREST
                 mMillisInFuture = shortRestT * 60 * PERIOD
             } else {
                 // long rest
-                finishToast = Toast.makeText(
-                    this@PomoTimerActivity,
-                    "집중이 종료되었습니다.\n긴 휴식으로 전환됩니다.",
-                    Toast.LENGTH_SHORT
-                )
                 currentTimer = CurrentTimer.LONGREST
                 mMillisInFuture = longRestT * 60 * PERIOD
             }
         } else if (currentTimer == CurrentTimer.SHORTREST) {
-            finishToast = Toast.makeText(
-                this@PomoTimerActivity,
-                "휴식이 종료되었습니다.\n집중으로 전환됩니다.",
-                Toast.LENGTH_SHORT
-            )
             studyCnt++
             currentTimer = CurrentTimer.STUDY
             mMillisInFuture = studyT * 60 * PERIOD
         } else {
-            finishToast = Toast.makeText(
-                this@PomoTimerActivity,
-                "긴 휴식이 종료되었습니다.\n집중으로 전환됩니다.",
-                Toast.LENGTH_LONG
-            )
             studyCnt = 1
             currentTimer = CurrentTimer.STUDY
             mMillisInFuture = studyT * 60 * PERIOD
         }
-        //종료 토스트 띄우기
-        finishToast.show()
-        //알람 울리기
-
         //UI변경
         setUI()
         currentButton = CurrentButton.PAUSE
         binding.btStart.setBackgroundResource(R.drawable.ic_baseline_play_circle_outline_24)
-        //binding.btStart.setText("시작")
 
         //자동일 경우 바로 전환
         if (auto) {
@@ -356,13 +327,10 @@ class PomoTimerActivity : AppCompatActivity() {
     fun setUI() {
         if (currentTimer == CurrentTimer.STUDY) {
             binding.timerToolbarTitle.setText(R.string.timer_study_name)
-            //   binding.tvTitle.setText("집중")
         } else if (currentTimer == CurrentTimer.SHORTREST) {
             binding.timerToolbarTitle.setText(R.string.timer_rest_name)
-            //   binding.tvTitle.setText("휴식")
         } else {
             binding.timerToolbarTitle.setText(R.string.timer_long_rest_name)
-            //    binding.tvTitle.setText("긴 휴식")
         }
         binding.cpbCirclebar.max = mMillisInFuture.toInt()
         binding.cpbCirclebar.progress = mMillisInFuture.toInt()
@@ -388,13 +356,10 @@ class PomoTimerActivity : AppCompatActivity() {
             startCountDownTimer()
             binding.btStart.setBackgroundResource(R.drawable.ic_baseline_pause_circle_outline_24)
             currentButton = CurrentButton.PLAY
-            //binding.btStart.setText("중지")
         } else {
             pauseCountDownTimer()
             binding.btStart.setBackgroundResource(R.drawable.ic_baseline_play_circle_outline_24)
             currentButton = CurrentButton.PAUSE
-           // binding.btStart.setText("시작")
-
         }
     }
 }

@@ -24,7 +24,7 @@ class MainFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
-    private val pomoSetString = arrayOf("(25분 - 5분) x 4뽀모 - 20분", "(50분 - 10분) x 4뽀모 - 40분", "(75분 - 15분) x 4뽀모 - 40분")
+    private lateinit var pomoSetString: Array<String>
     private val pomoSet = arrayOf(arrayOf(25, 5, 4, 20), arrayOf(50, 10, 4, 40), arrayOf(75,5, 4, 40))
 
     //뷰를 그리는 라이프사이클
@@ -47,6 +47,8 @@ class MainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         sp = PreferenceManager.getDefaultSharedPreferences(context)
+
+        pomoSetString = resources.getStringArray(R.array.pomodoro_set)
 
         binding.btStart.setOnClickListener {
             val timer_intent = Intent(context, PomoTimerActivity::class.java)
@@ -87,8 +89,7 @@ class MainFragment : Fragment() {
 
     fun selectPomoSet(){
         val dialogBinding = TodoItemActionDialogBinding.inflate(LayoutInflater.from(context))
-
-        dialogBinding.dialogTitle.setText("기본 조합")
+        dialogBinding.dialogTitle.setText(R.string.pomodoro_set_dialog_title)
         dialogBinding.lvSelectAction.adapter =
             ArrayAdapter<String>(requireContext(), android.R.layout.simple_list_item_1, pomoSetString)
 

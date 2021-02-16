@@ -128,7 +128,7 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
             }
             this.btOk.setOnClickListener {
                 if (this.dialogGroupName.text.isNullOrEmpty()) {
-                    Toast.makeText(context, "빈 칸을 채워주세요.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.empty_message, Toast.LENGTH_SHORT).show()
                 } else {
                     val editor = PreferenceManager.getDefaultSharedPreferences(context).edit()
                     editor.putInt(key, this.dialogGroupName.text.toString().toInt())

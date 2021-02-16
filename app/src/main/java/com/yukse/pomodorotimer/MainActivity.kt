@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity(), ToDoListFragment.OnDataPassLister {
         val shortRestT = if (item.short_rest == null) sp.getInt("short_rest_time", 5)
             .toLong() else item.short_rest
         val longRestT =
-            if (item.long_rest == null) sp.getInt("long_rest_time", 30).toLong() else item.long_rest
+            if (item.long_rest == null) sp.getInt("long_rest_time", 20).toLong() else item.long_rest
         val pomo = if (item.pomo == null) sp.getInt("long_rest_pomo", 4) else item.pomo
         val auto =
             if (item.autoStart == null) sp.getBoolean("auto_timer", false) else item.autoStart
@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity(), ToDoListFragment.OnDataPassLister {
             super.onBackPressed();
         } else {
             backBtnTime = curTime;
-            Toast.makeText(this, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.app_exit, Toast.LENGTH_SHORT).show();
         }
     }
 }

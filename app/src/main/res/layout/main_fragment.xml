@@ -59,14 +59,14 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="집중 시간" />
+                android:text="@string/settings_study" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="휴식 시간" />
+                android:text="@string/settings_rest" />
 
         </LinearLayout>
 
@@ -114,14 +114,14 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="뽀모 횟수" />
+                android:text="@string/settings_pomo" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="긴 휴식 시간" />
+                android:text="@string/settings_long_rest" />
 
         </LinearLayout>
 
@@ -138,7 +138,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="포모도로 시작" />
+            android:text="@string/pomodoro_start" />
 
         <Button
             android:id="@+id/bt_start"

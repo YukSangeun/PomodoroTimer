@@ -141,25 +141,27 @@ class ToDoListFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_add -> {
-                itemInfoEditDialog("작업 추가", 0, context)
+                itemInfoEditDialog(R.string.timer_add_dialog_title, 0, context)
             }
             R.id.action_edit -> {
-                groupAddOREditDialog("이름 변경")
+                groupAddOREditDialog(R.string.action_edit_group)
             }
             R.id.action_delete -> {
                 if (viewModel.getAllGroup()?.size == 1) {
                     AlertDialog.Builder(context)
-                        .setMessage("2개 이상의 목록이 존재할 경우 삭제 가능합니다.")
-                        .setPositiveButton("확인", null)
+                        .setMessage(R.string.unable_delete_group)
+                        .setPositiveButton(R.string.button_ok, null)
                         .show()
                 } else {
                     AlertDialog.Builder(context)
-                        .setMessage("이 목록의 모든 타이머가 삭제됩니다.")
-                        .setPositiveButton("확인", DialogInterface.OnClickListener { dialog, which ->
-                            viewModel.deleteGroup(current_group_id)
-                            current_group_id = 0
-                        })
-                        .setNegativeButton("취소", null)
+                        .setMessage(R.string.able_delete_group)
+                        .setPositiveButton(
+                            R.string.button_ok,
+                            DialogInterface.OnClickListener { dialog, which ->
+                                viewModel.deleteGroup(current_group_id)
+                                current_group_id = 0
+                            })
+                        .setNegativeButton(R.string.button_cancle, null)
                         .show()
                 }
             }
@@ -199,22 +201,23 @@ class ToDoListFragment : Fragment() {
             )
         )
         groupDialogBinding.btGroupAdd.setOnClickListener {
-            groupAddOREditDialog("목록 추가")
+            groupAddOREditDialog(R.string.action_add_group)
         }
         groupDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
     }
 
     fun groupAddOREditDialog(
-        title: String
+        title: Int
     ) {
-        val setGroupNameDialogBinding = SetGroupNameDialogBinding.inflate(LayoutInflater.from(context))
+        val setGroupNameDialogBinding =
+            SetGroupNameDialogBinding.inflate(LayoutInflater.from(context))
         val addDialog = AlertDialog.Builder(context)
             .setView(setGroupNameDialogBinding.root)
             .create()
 
         with(setGroupNameDialogBinding) {
             this.dialogTitle.setText(title)
-            if (title == "이름 변경") {
+            if (title == R.string.action_edit_group) {
                 this.dialogGroupName.setText(current_group_name)
             }
             this.btCancle.setOnClickListener {
@@ -222,13 +225,13 @@ class ToDoListFragment : Fragment() {
             }
             this.btOk.setOnClickListener {
                 if (this.dialogGroupName.text.isNullOrEmpty()) {
-                    Toast.makeText(context, "빈 칸을 채워주세요.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.empty_message, Toast.LENGTH_SHORT).show()
                 } else {
                     when (title) {
-                        "목록 추가" -> {
+                        R.string.action_add_group -> {
                             viewModel.addGroup(GroupEntity(group = this.dialogGroupName.text.toString()))
                         }
-                        "이름 변경" -> {
+                        R.string.action_edit_group -> {
                             current_group_name = this.dialogGroupName.text.toString()
                             viewModel.editGroup(
                                 GroupEntity(
@@ -253,7 +256,7 @@ class ToDoListFragment : Fragment() {
         val item_id = viewModel.getToDoLiveDataInGroup().value!!.get(item_pos).id
         Log.d("txx", "item position: " + item_pos)
         Log.d("txx", "item id: " + item_id)
-        val eord_list = arrayOf("수정", "삭제")
+        val eord_list = resources.getStringArray(R.array.timer_edit)
 
         val dialogBinding = TodoItemActionDialogBinding.inflate(LayoutInflater.from(context))
 
@@ -268,11 +271,23 @@ class ToDoListFragment : Fragment() {
         dialogBinding.lvSelectAction.setOnItemClickListener { parent, view, position, id ->
             when (position) {
                 0 -> {
-                    itemInfoEditDialog("작업 수정", item_pos, context)
+                    itemInfoEditDialog(R.string.timer_edit_dialog_title, item_pos, context)
                 }
                 1 -> {
                     //삭제
-                    viewModel.deleteTodo(viewModel.getToDoLiveDataInGroup().value?.get(item_pos))
+                    AlertDialog.Builder(context)
+                        .setMessage(R.string.timer_delete)
+                        .setPositiveButton(
+                            R.string.button_ok,
+                            DialogInterface.OnClickListener { dialog, which ->
+                                viewModel.deleteTodo(
+                                    viewModel.getToDoLiveDataInGroup().value?.get(
+                                        item_pos
+                                    )
+                                )
+                            })
+                        .setNegativeButton(R.string.button_cancle, null)
+                        .show()
                 }
             }
             dialog.dismiss()
@@ -284,7 +299,7 @@ class ToDoListFragment : Fragment() {
 
     //아이템 수정 or 추가 다이얼로그 띄우기
     fun itemInfoEditDialog(
-        title: String,   //dialog title에 적을 문자열
+        title: Int,   //dialog title에 적을 문자열
         position: Int,   //edit경우 수정할 아이템의 위치를 알아야한다.
         context: Context?
     ) {
@@ -292,7 +307,7 @@ class ToDoListFragment : Fragment() {
 
         dialogBinding.dialogTitle.setText(title)
         //기존 값 불러와 화면에 표시
-        if (title.equals("작업 수정")) {
+        if (title.equals(R.string.timer_edit_dialog_title)) {
             dialogBinding.etTitle.setText(viewModel.getToDoLiveDataInGroup().value!!.get(position).title)
             dialogBinding.etTimes.setText(viewModel.getToDoLiveDataInGroup().value!!.get(position).pomo.toString())
             dialogBinding.etStudy.setText(viewModel.getToDoLiveDataInGroup().value!!.get(position).study.toString())
@@ -306,7 +321,7 @@ class ToDoListFragment : Fragment() {
             dialogBinding.etTimes.setText(sp.getInt("long_rest_pomo", 4).toString())
             dialogBinding.etStudy.setText(sp.getInt("study_time", 25).toString())
             dialogBinding.etRest.setText(sp.getInt("short_rest_time", 5).toString())
-            dialogBinding.etLongRest.setText(sp.getInt("long_rest_time", 30).toString())
+            dialogBinding.etLongRest.setText(sp.getInt("long_rest_time", 20).toString())
             dialogBinding.cbPomoAutoRun.isChecked = sp.getBoolean("auto_timer", false)
             dialogBinding.cbNoLong.isChecked = !(sp.getBoolean("use_long_rest", true))
         }
@@ -379,16 +394,11 @@ class ToDoListFragment : Fragment() {
                 }
                 dialogBinding.btOk.setOnClickListener {
                     //빈칸이 존재할 경우 toast 띄우기
-                    if (dialogBinding.etTitle.text.toString()
-                            .equals("") || dialogBinding.etStudy.text.toString()
-                            .equals("") || dialogBinding.etRest.text.toString()
-                            .equals("") || (!dialogBinding.cbNoLong.isChecked && (dialogBinding.etLongRest.text.toString()
-                            .equals("") || dialogBinding.etTimes.text.toString().equals("")))
-                    ) {
-                        Toast.makeText(context, "빈 칸을 채워주세요.", Toast.LENGTH_SHORT).show()
+                    if (dialogBinding.etTitle.text.isNullOrEmpty() || dialogBinding.etStudy.text.isNullOrEmpty() || dialogBinding.etRest.text.isNullOrEmpty() || (!dialogBinding.cbNoLong.isChecked && (dialogBinding.etLongRest.text.isNullOrEmpty() || dialogBinding.etTimes.text.isNullOrEmpty()))) {
+                        Toast.makeText(context, R.string.empty_message, Toast.LENGTH_SHORT).show()
                     } else {
                         when (title) {
-                            "작업 추가" -> {
+                            R.string.timer_add_dialog_title -> {
                                 addToDo(
                                     title = dialogBinding.etTitle.text.toString(),
                                     study = dialogBinding.etStudy.text.toString(),
@@ -399,7 +409,7 @@ class ToDoListFragment : Fragment() {
                                     noLong = dialogBinding.cbNoLong.isChecked
                                 )
                             }
-                            "작업 수정" -> {
+                            R.string.timer_edit_dialog_title -> {
                                 editToDo(
                                     id = viewModel.getToDoLiveDataInGroup().value!!.get(position).id,
                                     title = dialogBinding.etTitle.text.toString(),
@@ -452,7 +462,7 @@ class ToDoListFragment : Fragment() {
     ) {
         // long rest를 사용하지 않을 경우, long time 과 pomo를 빈칸으로 남겨둘 때 에러 발생 방지
         val long_ =
-            if (long_rest == "") sp.getInt("long_rest_time", 30).toLong() else long_rest.toLong()
+            if (long_rest == "") sp.getInt("long_rest_time", 20).toLong() else long_rest.toLong()
         val pomo_ = if (pomo == "") sp.getInt("long_rest_pomo", 4) else pomo.toInt()
 
         viewModel.addTodo(
@@ -481,7 +491,7 @@ class ToDoListFragment : Fragment() {
     ) {
         // long rest를 사용하지 않을 경우, long time 과 pomo를 빈칸으로 남겨둘 때 에러 발생 방지
         val long_ =
-            if (long_rest == "") sp.getInt("long_rest_time", 30).toLong() else long_rest.toLong()
+            if (long_rest == "") sp.getInt("long_rest_time", 20).toLong() else long_rest.toLong()
         val pomo_ = if (pomo == "") sp.getInt("long_rest_pomo", 4) else pomo.toInt()
 
         viewModel.editTodo(

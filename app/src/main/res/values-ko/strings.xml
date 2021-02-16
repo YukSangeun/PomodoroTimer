@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- tool bar menu액션 -->
+    <string name="action_add">타이머 생성</string>
+    <string name="action_edit_group">이름 변경</string>
+    <string name="action_delete_group">목록 삭제</string>
+    <string name="action_settings">설정</string>
+    <string name="action_add_group">목록 추가</string>
+    <string name="unable_delete_group">2개 이상의 목록이 존재할 경우 삭제 가능합니다.</string>
+    <string name="able_delete_group">이 목록의 모든 작업이 삭제됩니다.</string>
+    <!-- tool bar title, 작업추가 다이얼로그 -->
+    <string name="timer_study_name">집중</string>
+    <string name="timer_rest_name">휴식</string>
+    <string name="timer_long_rest_name">긴 휴식</string>
+    <string name="settings_name">설정</string>
+    <!-- 작업추가 다이얼로그 -->
+    <string name="timer_add_dialog_title">작업 추가</string>
+    <string name="timer_edit_dialog_title">작업 수정</string>
+    <string name="timer_title">제목</string>
+    <string name="timer_minutes">분</string>
+    <string name="timer_no_long_rest">사용 안함</string>
+    <string name="timer_pomo">뽀모 횟수</string>
+    <string name="timer_auto_start">자동 시작</string>
+    <!-- 작업변경 다이얼로그 -->
+    <string-array name="timer_edit">
+        <item>수정</item>
+        <item>삭제</item>
+    </string-array>
+    <string name="timer_delete">작업이 삭제됩니다.</string>
+    <!-- 취소, 확인 버튼 -->
+    <string name="button_ok">확인</string>
+    <string name="button_cancle">취소</string>
+    <!-- edit text 빈칸일 경우 -->
+    <string name="empty_message">빈 칸을 채워주세요.</string>
+    <!-- 목록 다이얼로그 -->
+    <string name="group_list">나의 목록</string>
+    <!-- settings -->
+    <string name="settings_timer">시간 설정</string>
+    <string name="settings_study">집중 시간</string>
+    <string name="settings_rest">휴식 시간</string>
+    <string name="settings_no_long_rest">긴 휴식 구간 사용</string>
+    <string name="settings_pomo">뽀모 횟수</string>
+    <string name="settings_long_rest">긴 휴식 시간</string>
+    <string name="settings_alarm">알림 설정</string>
+    <string name="settings_finish_alarm">타이머 종료 알림</string>
+    <string name="settings_finish_vib">타이머 종료 진동</string>
+    <string name="settings_sound">알림 소리</string>
+    <string name="settings_sound_hint">알림 소리를 설정하세요.</string>
+    <string name="settings_more">기타 설정</string>
+    <string name="settings_always_on_display">화면 켜진 상태 유지</string>
+    <string name="settings_timer_auto_start">자동 시작</string>
+    <string name="settings_timer_auto_hint">집중 시간 또는 휴식 시간이 종료 시 다음 작업이 자동 시작됩니다.</string>
+    <!-- main fragment -->
+    <string name="pomodoro_start">포모도로 시작</string>
+    <string name="pomodoro_set_dialog_title">포모도로 조합</string>
+    <string-array name="pomodoro_set">
+        <item>(25분 - 5분) x 4뽀모 - 20분</item>
+        <item>(50분 - 10분) x 4뽀모 - 40분</item>
+        <item>(75분 - 15분) x 4뽀모 - 40분</item>
+    </string-array>
+    <!-- timerActivity -->
+    <string name="timer_exit">포모도로를 종료하시겠습니까?</string>
+    <!-- 앱 종료 -->
+    <string name="app_exit">한번 더 누르면 종료됩니다.</string>
+</resources>
