@@ -1,13 +1,19 @@
 package com.yukse.pomodorotimer
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.yukse.pomodorotimer.databinding.MainFragmentBinding
+import com.yukse.pomodorotimer.databinding.TodoItemActionDialogBinding
 
 class MainFragment : Fragment() {
 
@@ -18,6 +24,8 @@ class MainFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+    private val pomoSetString = arrayOf("(25분 - 5분) x 4뽀모 - 20분", "(50분 - 10분) x 4뽀모 - 40분", "(75분 - 15분) x 4뽀모 - 40분")
+    private val pomoSet = arrayOf(arrayOf(25, 5, 4, 20), arrayOf(50, 10, 4, 40), arrayOf(75,5, 4, 40))
 
     //뷰를 그리는 라이프사이클
     override fun onCreateView(
@@ -44,9 +52,8 @@ class MainFragment : Fragment() {
             val timer_intent = Intent(context, PomoTimerActivity::class.java)
             startActivity(timer_intent)
         }
-        binding.llTimeBox.setOnClickListener{
-            val setting_intent = Intent(context, SettingActivity::class.java)
-            startActivity(setting_intent)
+        binding.llTimeBox.setOnClickListener {
+            selectPomoSet()
         }
     }
 
@@ -58,20 +65,50 @@ class MainFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        binding.tvStudy.setText(sp.getInt("study_time", 25).toString())
-        binding.tvRest.setText(sp.getInt("short_rest_time", 5).toString())
-        if(sp.getBoolean("use_long_rest", true)) {
-            binding.tvLongRest.setText(sp.getInt("long_rest_time", 30).toString())
-            binding.tvPomo.setText(sp.getInt("long_rest_pomo", 4).toString())
-        }
-        else{
-            binding.tvLongRest.setText("-")
-            binding.tvPomo.setText("-")
-        }
+        init()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    fun init(){
+        binding.tvStudy.setText(sp.getInt("study_time", 25).toString())
+        binding.tvRest.setText(sp.getInt("short_rest_time", 5).toString())
+        if (sp.getBoolean("use_long_rest", true)) {
+            binding.tvLongRest.setText(sp.getInt("long_rest_time", 20).toString())
+            binding.tvPomo.setText(sp.getInt("long_rest_pomo", 4).toString())
+        } else {
+            binding.tvLongRest.setText("-")
+            binding.tvPomo.setText("-")
+        }
+    }
+
+    fun selectPomoSet(){
+        val dialogBinding = TodoItemActionDialogBinding.inflate(LayoutInflater.from(context))
+
+        dialogBinding.dialogTitle.setText("기본 조합")
+        dialogBinding.lvSelectAction.adapter =
+            ArrayAdapter<String>(requireContext(), android.R.layout.simple_list_item_1, pomoSetString)
+
+        val dialog = AlertDialog.Builder(context)
+            .setView(dialogBinding.root)
+            .create()
+
+        dialogBinding.lvSelectAction.setOnItemClickListener { parent, view, position, id ->
+            val editor = PreferenceManager.getDefaultSharedPreferences(context).edit()
+            editor.putInt("study_time", pomoSet[position][0])
+            editor.putInt("short_rest_time", pomoSet[position][1])
+            editor.putInt("long_rest_pomo", pomoSet[position][2])
+            editor.putInt("long_rest_time", pomoSet[position][3])
+            editor.putBoolean("use_long_rest", true)
+            editor.commit()
+            dialog.dismiss()
+            init()
+        }
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.show()
     }
 }
