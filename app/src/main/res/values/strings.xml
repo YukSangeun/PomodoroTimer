@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Pomodoro</string>
+    <string name="app_name">Focus Room</string>
     <!-- tool bar menu액션 -->
     <string name="action_add">Add Timer</string>
     <string name="action_edit_group">Edit Name</string>

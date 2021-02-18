@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Focus Room</string>
     <!-- tool bar menu액션 -->
     <string name="action_add">타이머 생성</string>
     <string name="action_edit_group">이름 변경</string>
